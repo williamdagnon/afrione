@@ -21,7 +21,7 @@ const CustomerServiceScreen: React.FC<CustomerServiceScreenProps> = ({ onNavigat
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
             <span className="text-white font-bold text-sm">F</span>
           </div>
-          <span className="text-yellow-500 font-semibold">Futuristia</span>
+          <span className="text-yellow-500 font-semibold">AFRIONE</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">Service Client</span>
       </div>
@@ -50,15 +50,15 @@ const CustomerServiceScreen: React.FC<CustomerServiceScreenProps> = ({ onNavigat
             
             <div className="space-y-3">
               <button 
-                onClick={() => alert('Redirection vers @Service Telegram')}
+                onClick={() => window.open('https://t.me/Afrioneservice', '_blank')}
                 className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <span className="text-gray-700">@Service Telegram</span>
+                <span className="text-gray-700">@Service  Client</span>
                 <span className="text-gray-400">&gt;</span>
               </button>
               
               <button 
-                onClick={() => alert('Redirection vers @Groupe officiel Telegram')}
+                onClick={() => window.open('https://t.me/+Px8RNkpxMmc3NzI0', '_blank')}
                 className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <span className="text-gray-700">@Groupe officiel Telegram</span>

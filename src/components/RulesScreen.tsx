@@ -8,14 +8,14 @@ interface RulesScreenProps {
 
 const RulesScreen: React.FC<RulesScreenProps> = ({ onNavigate }) => {
   const products = [
-    { name: 'Futuristia 001', price: 'FCFA 3,000', dailyRevenue: 'FCFA 295', totalRevenue: 'FCFA 35,000', duration: '120 jours' },
-    { name: 'Futuristia 002', price: 'FCFA 7,000', dailyRevenue: 'FCFA 775', totalRevenue: 'FCFA 93,000', duration: '120 jours' },
-    { name: 'Futuristia 003', price: 'FCFA 25,000', dailyRevenue: 'FCFA 4,000', totalRevenue: 'FCFA 480,000', duration: '120 jours' },
-    { name: 'Futuristia 003', price: 'FCFA 60,000', dailyRevenue: 'FCFA 9,000', totalRevenue: 'FCFA 1,080,000', duration: '120 jours' },
-    { name: 'Futuristia 004', price: 'FCFA 150,000', dailyRevenue: 'FCFA 25,000', totalRevenue: 'FCFA 3,000,000,', duration: '120 jours' },
-    { name: 'Futuristia 005', price: 'FCFA 300,000', dailyRevenue: 'FCFA 45,000', totalRevenue: 'FCFA 5,400,000', duration: '120 jours' },
-    { name: 'Futuristia 006', price: 'FCFA 650,000', dailyRevenue: 'FCFA 100,000', totalRevenue: 'FCFA 12,000,000', duration: '120 jours' },
-    { name: 'Futuristia 007', price: 'FCFA 1,000,000', dailyRevenue: 'FCFA 260,000', totalRevenue: 'FCFA 31,200,000', duration: '120 jours' },
+    { name: 'AFRIONE 001', price: 'FCFA 3,000', dailyRevenue: 'FCFA 400', totalRevenue: 'FCFA 48,000', duration: '120 jours' },
+    { name: 'AFRIONE 002', price: 'FCFA 7,000', dailyRevenue: 'FCFA 1,100', totalRevenue: 'FCFA 93,000', duration: '120 jours' },
+    { name: 'AFRIONE 003', price: 'FCFA 25,000', dailyRevenue: 'FCFA 4,000', totalRevenue: 'FCFA 480,000', duration: '120 jours' },
+    { name: 'AFRIONE 003', price: 'FCFA 60,000', dailyRevenue: 'FCFA 9,000', totalRevenue: 'FCFA 1,080,000', duration: '120 jours' },
+    { name: 'AFRIONE 004', price: 'FCFA 150,000', dailyRevenue: 'FCFA 25,000', totalRevenue: 'FCFA 3,000,000,', duration: '120 jours' },
+    { name: 'AFRIONE 005', price: 'FCFA 300,000', dailyRevenue: 'FCFA 45,000', totalRevenue: 'FCFA 5,400,000', duration: '120 jours' },
+    { name: 'AFRIONE 006', price: 'FCFA 650,000', dailyRevenue: 'FCFA 100,000', totalRevenue: 'FCFA 12,000,000', duration: '120 jours' },
+    { name: 'AFRIONE 007', price: 'FCFA 1,000,000', dailyRevenue: 'FCFA 260,000', totalRevenue: 'FCFA 31,200,000', duration: '120 jours' },
   ];
 
   return (
@@ -30,9 +30,15 @@ const RulesScreen: React.FC<RulesScreenProps> = ({ onNavigate }) => {
         </button>
         <div className="flex items-center">
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-sm">F</span>
+            <span className="text-white font-bold text-sm">
+              <img 
+                src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
+                alt="afrione"
+                className='h-full w-full rounded-2xl' 
+                />
+            </span>
           </div>
-          <span className="text-yellow-500 font-semibold">Futuristia</span>
+          <span className="text-yellow-500 font-semibold">AFRIONE</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">Règlement</span>
       </div>
@@ -65,7 +71,7 @@ const RulesScreen: React.FC<RulesScreenProps> = ({ onNavigate }) => {
       {/* Rules Content */}
       <div className="p-6 text-gray-700 leading-relaxed">
         <p className="mb-4">
-          Futuristia est bien plus qu’une entreprise : c’est un mouvement. 
+          AFRIONE est bien plus qu’une entreprise : c’est un mouvement. 
           Notre mission est d’imaginer et de créer un futur où l’impossible devient réalité, 
           où l’humanité peut voyager à travers le temps et l’espace, guidée par la lumière du progrès.
         </p>
@@ -95,7 +101,7 @@ const RulesScreen: React.FC<RulesScreenProps> = ({ onNavigate }) => {
           <p><strong>2.</strong> Bonus de connexion quotidien : 50 FCFA</p>
           <p><strong>3.</strong> Invitez vos abonnés à investir et recevez un bonus de 35 % de leur investissement.</p>
           <p><strong>4.</strong> Il n'y a pas de limite de temps pour retirer votre argent ; vous pouvez retirer autant de fois que vous le souhaitez.</p>
-          <p><strong>5.</strong> Futuristia sera lancé en Côte d'Ivoire, au Burkina Faso, au Cameroun, au Togo et au Bénin le 22 septembre.</p>
+          <p><strong>5.</strong> AFRIONE sera lancé en Côte d'Ivoire, au Burkina Faso, au Cameroun, au Togo et au Bénin le 22 septembre.</p>
           <p><strong>6.</strong> Rejoignez notre groupe Telegram pour plus d'informations sur les gains.</p>
         </div>
       </div>

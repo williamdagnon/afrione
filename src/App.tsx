@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
 import LoginScreen from './components/LoginScreen';
@@ -17,53 +17,171 @@ import LinkBankCardScreen from './components/LinkBankCardScreen';
 import RechargeScreen from './components/RechargeScreen';
 import WithdrawScreen from './components/WithdrawScreen';
 import CheckInScreen from './components/CheckInScreen';
+import TaskCenterScreen from './components/TaskCenterScreen';
+// Admin Components
+import AdminDashboard from './components/admin/AdminDashboard';
+import WithdrawalManagement from './components/admin/WithdrawalManagement';
+import UserManagement from './components/admin/UserManagement';
+import ProductManagement from './components/admin/ProductManagement';
+import AdminSettings from './components/admin/AdminSettings';
+import ManualDepositManagement from './components/admin/ManualDepositManagement';
+import BankAccountsManagement from './components/admin/BankAccountsManagement';
+import PaymentMethodsManagement from './components/admin/PaymentMethodsManagement';
+import api, { User } from './services/api';
 
-export type ScreenType = 'login' | 'register' | 'home' | 'product' | 'team' | 'profile' | 'about' | 'rules' | 'balance-details' | 'customer-service' | 'bank-accounts' | 'link-bank-card' | 'recharge' | 'withdraw' | 'check-in';
+export type ScreenType = 'login' | 'register' | 'home' | 'product' | 'team' | 'profile' | 'about' | 'rules' | 'balance-details' | 'customer-service' | 'bank-accounts' | 'link-bank-card' | 'recharge' | 'withdraw' | 'check-in' | 'admin-dashboard' | 'admin-withdrawals' | 'admin-users' | 'admin-products' | 'admin-settings' | 'admin-manual-deposits' | 'admin-bank-accounts' | 'admin-payment-methods' | 'task-center';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('login');
+  const [currentScreen, setCurrentScreen] = useState<ScreenType>('register');
   const [showNotification, setShowNotification] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userBalance, setUserBalance] = useState(200);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Récupérer le code d'invitation depuis l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      setInviteCode(refCode);
+      setCurrentScreen('register');
+    }
+  }, []);
+  // PATCH AI: Ajout état
+  const [referralInfos, setReferralInfos] = useState<any>(null);
+  const [loadingReferral, setLoadingReferral] = useState(false);
 
-  // Identifiants par défaut
-  const defaultCredentials = {
-    phone: '+22513739186',
-    password: 'virtuix123'
+  // Vérifier si l'utilisateur est déjà connecté au chargement
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = api.getToken();
+      if (token) {
+        try {
+          const response = await api.getProfile();
+          if (response.success && response.data) {
+            setCurrentUser(response.data);
+            setIsAuthenticated(true);
+            setCurrentScreen('home');
+          } else {
+            api.clearToken();
+          }
+        } catch (error) {
+          console.error('Erreur lors de la vérification de l\'authentification:', error);
+          api.clearToken();
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if(currentScreen === 'team') loadReferralInfos();
+  }, [currentScreen]);
+
+  const loadReferralInfos = async () => {
+    setLoadingReferral(true);
+    try {
+      // Récupérer d'abord les statistiques (code de parrainage)
+      const stats = await api.getReferralStats(); // /referrals/stats
+      // Puis récupérer la structure de l'équipe (niveaux / membres)
+      const team = await api.getReferralTeam();   // /referrals/my-team
+      if (stats.success && team.success) {
+        const code = stats.data?.referral_code || '';
+        setReferralInfos({
+          code,
+          link: code ? `http://localhost:5173/register?ref=${code}` : '',
+          levels: team.data?.levels || [],
+          totalUsers: team.data?.totalUsers || 0,
+          totalRewards: team.data?.totalRewards || 0,
+        });
+      } else {
+        toast.error('Impossible de charger les données de parrainage');
+      }
+    } catch (e:any) {
+      console.error('Erreur chargement parrainage:', e);
+      toast.error(e?.message || 'Erreur parrainage');
+    } finally {
+      setLoadingReferral(false);
+    }
   };
 
-  const handleLogin = (phone: string, password: string) => {
-    // Vérification des identifiants
-    if (phone === defaultCredentials.phone && password === defaultCredentials.password) {
-      setIsAuthenticated(true);
-      setCurrentScreen('home');
-      setTimeout(() => {
-        setShowNotification(true);
-        toast.success('Connexion réussie');
-      }, 600);
-      return true;
+  // Fonction pour rafraîchir le profil utilisateur
+  const refreshUserProfile = async () => {
+    try {
+      const response = await api.getProfile();
+      if (response.success && response.data) {
+        setCurrentUser(response.data);
+      }
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement du profil:', error);
     }
-    return false;
   };
 
-  const handleRegister = (phone: string, password: string, confirmPassword: string) => {
-    // Validation simple pour l'inscription
-    if (password === confirmPassword && phone && password) {
-      setIsAuthenticated(true);
-      setCurrentScreen('home');
-      setTimeout(() => {
-        setShowNotification(true);
-        toast.success('Inscription réussie');
-      }, 600);
-      return true;
+  const handleLogin = async (phone: string, password: string) => {
+    try {
+      const response = await api.login(phone, password);
+      
+      if (response.success && response.data) {
+        setCurrentUser(response.data.user);
+        setIsAuthenticated(true);
+        setCurrentScreen('home');
+        setTimeout(() => {
+          setShowNotification(true);
+          toast.success('Connexion réussie');
+        }, 600);
+        return true;
+      } else {
+        toast.error(response.message || 'Échec de la connexion');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de la connexion:', error);
+      toast.error(error.message || 'Erreur lors de la connexion');
+      return false;
     }
-    return false;
+  };
+
+  const handleRegister = async (phone: string, password: string, confirmPassword: string, referralCode?: string) => {
+    if (password !== confirmPassword) {
+      toast.error('Les mots de passe ne correspondent pas');
+      return false;
+    }
+
+    try {
+      // Utiliser le code d'invitation de l'URL s'il existe
+      const codeToUse = referralCode || inviteCode || undefined;
+      const response = await api.register(phone, password, phone, codeToUse);
+      
+      if (response.success && response.data) {
+        setCurrentUser(response.data.user);
+        setIsAuthenticated(true);
+        setCurrentScreen('home');
+        setTimeout(() => {
+          setShowNotification(true);
+          toast.success('Inscription réussie ! Bonus de bienvenue accordé.');
+        }, 600);
+        return true;
+      } else {
+        toast.error(response.message || 'Échec de l\'inscription');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'inscription:', error);
+      toast.error(error.message || 'Erreur lors de l\'inscription');
+      return false;
+    }
   };
 
   const handleLogout = () => {
+    api.clearToken();
+    setCurrentUser(null);
     setIsAuthenticated(false);
     setCurrentScreen('login');
     setShowNotification(false);
+    toast.success('Déconnexion réussie');
   };
 
   const handleGoToRegister = () => {
@@ -78,13 +196,116 @@ function App() {
     setCurrentScreen(screen);
   };
 
-  const handlePurchaseProduct = (price: number) => {
-    if (userBalance >= price) {
-      setUserBalance(prev => prev - price);
-      return true;
+  const handlePurchaseProduct = async (productId: number) => {
+    try {
+      const response = await api.createPurchase(productId);
+      
+      if (response.success && response.data) {
+        // Mettre à jour le solde de l'utilisateur
+        if (currentUser) {
+          setCurrentUser({
+            ...currentUser,
+            balance: response.data.new_balance
+          });
+        }
+        toast.success('Achat effectué avec succès');
+        return true;
+      } else {
+        toast.error(response.message || 'Échec de l\'achat');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'achat:', error);
+      toast.error(error.message || 'Erreur lors de l\'achat');
+      return false;
     }
-    return false;
   };
+
+  const handleRecharge = async (amount: number) => {
+    try {
+      const response = await api.recharge(amount);
+      
+      if (response.success && response.data) {
+        // Mettre à jour le solde de l'utilisateur
+        if (currentUser) {
+          setCurrentUser({
+            ...currentUser,
+            balance: response.data.new_balance
+          });
+        }
+        toast.success('Rechargement effectué avec succès');
+        return true;
+      } else {
+        toast.error(response.message || 'Échec du rechargement');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Erreur lors du rechargement:', error);
+      toast.error(error.message || 'Erreur lors du rechargement');
+      return false;
+    }
+  };
+
+  const handleWithdraw = async (amount: number, bankAccountId: number) => {
+    try {
+      const response = await api.withdraw(amount, bankAccountId);
+      
+      if (response.success && response.data) {
+        // Le solde n'est pas immédiatement déduit, il faut attendre l'approbation admin
+        toast.success('Demande de retrait créée avec succès. En attente d\'approbation.');
+        // Rafraîchir le profil pour récupérer les éventuels changements
+        await refreshUserProfile();
+        return true;
+      } else {
+        toast.error(response.message || 'Échec de la demande de retrait');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de la demande de retrait:', error);
+      toast.error(error.message || 'Erreur lors de la demande de retrait');
+      return false;
+    }
+  };
+
+  const handleCheckIn = async () => {
+    try {
+      const response = await api.dailyCheckIn();
+      
+      if (response.success && response.data) {
+        // Mettre à jour le solde de l'utilisateur
+        if (currentUser) {
+          setCurrentUser({
+            ...currentUser,
+            balance: response.data.new_balance
+          });
+        }
+        toast.success(`Check-in effectué ! +${response.data.reward_amount} FCFA (Série: ${response.data.streak} jours)`);
+        return true;
+      } else {
+        toast.error(response.message || 'Vous avez déjà effectué votre check-in aujourd\'hui');
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Erreur lors du check-in:', error);
+      toast.error(error.message || 'Erreur lors du check-in');
+      return false;
+    }
+  };
+
+  // Identifiants par défaut (pour information)
+  const defaultCredentials = {
+    phone: '+22513739186',
+    password: 'virtuix123'
+  };
+
+  // Afficher un loader pendant le chargement initial
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-yellow-900 to-yellow-600 flex items-center justify-center">
+        <div className="text-white text-xl">Chargement...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-900 to-yellow-600 relative overflow-hidden">
@@ -113,27 +334,32 @@ function App() {
       {currentScreen === 'home' && (
         <HomeScreen 
           onNavigate={handleNavigate} 
-          userBalance={userBalance}
+          userBalance={currentUser?.balance || 0}
         />
       )}
 
       {currentScreen === 'product' && (
         <ProductScreen 
           onNavigate={handleNavigate}
-          userBalance={userBalance}
+          userBalance={currentUser?.balance || 0}
           onPurchase={handlePurchaseProduct}
         />
       )}
 
       {currentScreen === 'team' && (
-        <TeamScreen onNavigate={handleNavigate} />
+        <TeamScreen 
+          onNavigate={handleNavigate}
+          loadingReferral={loadingReferral}
+          referralInfos={referralInfos}
+        />
       )}
 
       {currentScreen === 'profile' && (
         <ProfileScreen 
           onNavigate={handleNavigate}
           onLogout={handleLogout}
-          userBalance={userBalance}
+          userBalance={currentUser?.balance || 0}
+          currentUser={currentUser}
         />
       )}
 
@@ -162,15 +388,63 @@ function App() {
       )}
 
       {currentScreen === 'recharge' && (
-        <RechargeScreen onNavigate={handleNavigate} />
+        <RechargeScreen 
+          onNavigate={handleNavigate}
+          onRecharge={handleRecharge}
+        />
       )}
 
       {currentScreen === 'withdraw' && (
-        <WithdrawScreen onNavigate={handleNavigate} userBalance={userBalance} />
+        <WithdrawScreen 
+          onNavigate={handleNavigate} 
+          userBalance={currentUser?.balance || 0}
+          onWithdraw={handleWithdraw}
+        />
       )}
 
       {currentScreen === 'check-in' && (
-        <CheckInScreen onNavigate={handleNavigate} />
+        <CheckInScreen 
+          onNavigate={handleNavigate} 
+          onCheckIn={handleCheckIn}
+          userBalance={currentUser?.balance || 0}
+        />
+      )}
+
+      {currentScreen === 'task-center' && (
+        <TaskCenterScreen onNavigate={handleNavigate} />
+      )}
+
+      {/* Admin Screens */}
+      {currentScreen === 'admin-dashboard' && (
+        <AdminDashboard onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-withdrawals' && (
+        <WithdrawalManagement onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-users' && (
+        <UserManagement onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-products' && (
+        <ProductManagement onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-settings' && (
+        <AdminSettings onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-manual-deposits' && (
+        <ManualDepositManagement onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-bank-accounts' && (
+        <BankAccountsManagement onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-payment-methods' && (
+        <PaymentMethodsManagement onNavigate={handleNavigate} />
       )}
 
       <Toaster position="top-right" />

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 interface RegisterScreenProps {
-  onRegister: (phone: string, password: string, confirmPassword: string) => boolean;
+  onRegister: (phone: string, password: string, confirmPassword: string, referralCode?: string) => Promise<boolean>;
   onGoToLogin: () => void;
 }
 
@@ -40,30 +40,33 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegister, onGoToLogin
 
   const fullPhone = phoneNumber.startsWith('+') ? phoneNumber : `${countryCode}${phoneNumber}`;
 
-  const success = onRegister(fullPhone, password, confirmPassword);
-    
-    if (!success) {
-      setError('Erreur lors de l\'inscription. Veuillez réessayer.');
-      toast.error('Échec de l\'inscription');
-    } else {
-      toast.success('Inscription réussie');
-    }
+  // Passer le code d'invitation (verificationCode) à la fonction onRegister
+  const success = await onRegister(fullPhone, password, confirmPassword, verificationCode || undefined);
+
+  if (!success) {
+    setError('Erreur lors de l\'inscription. Veuillez réessayer.');
+    toast.error('Échec de l\'inscription');
+  } else {
+    toast.success('Inscription réussie');
+  }
     
     setIsLoading(false);
   };
 
   return (
-    <div className=" font-serif flex items-center justify-center min-h-screen p-4">
+    <div className=" font-serif  flex items-center justify-center min-h-screen p-4" 
+    style={{backgroundImage: 'url(https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg)', 
+    backgroundSize: 'cover', backgroundPosition: 'center'}}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="w-full max-w-sm">
         {/* Logo */}
        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
+          <div className="w-20 h-20 bg-black rounded-full mx-auto mb-4 flex items-center justify-center">
             
-              <img src="https://i.postimg.cc/ZRwNcf6M/IMG-20250925-WA0001-1.jpg" 
-              alt="Futuristia Logo" className='w-20 h-20 rounded-full' />
+              <img src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
+              alt="AFRIONE Logo" className='w-20 h-20 rounded-full' />
             
           </div>
-          <h1 className="text-white text-2xl font-light">Futuristia</h1>
+          <h1 className="text-white text-2xl font-light">AFRIONE</h1>
         </div>
         {/* Register Form */}
         <div className="bg-white rounded-2xl p-6 shadow-xl">
@@ -82,8 +85,10 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegister, onGoToLogin
                   aria-label="Code pays"
                 >
                   <option>+225</option>
-                  <option>+33</option>
-                  <option>+1</option>
+                  <option>+228</option>
+                  <option>+226</option>
+                  <option>+237</option>
+                  <option>+229</option>
                 </select>
                 <input
                   id="phone"
@@ -174,7 +179,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegister, onGoToLogin
             {/* Register Button */}
             <motion.button
               type="submit"
-              className="w-full bg-yellow-500 text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-600 transition-colors mb-4"
+              className="w-full bg-black text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-600 transition-colors mb-4"
               whileTap={{ scale: 0.98 }}
               disabled={isLoading}
             >

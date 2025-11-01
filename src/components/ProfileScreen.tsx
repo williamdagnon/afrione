@@ -15,14 +15,16 @@ import {
 import BottomNavigation from './BottomNavigation';
 import { ScreenType } from '../App';
 import { motion } from 'framer-motion';
+import { User as UserType } from '../services/api';
 
 interface ProfileScreenProps {
   onNavigate: (screen: ScreenType) => void;
   onLogout: () => void;
   userBalance: number;
+  currentUser: UserType | null;
 }
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, userBalance }) => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, userBalance, currentUser }) => {
   const menuItems = [
     {
       icon: Info,
@@ -54,14 +56,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
       title: 'Lier carte bancaire',
       color: 'text-yellow-500',
       action: () => onNavigate('bank-accounts')
-    },
-
-    {
-      icon: Gift,
-      title: 'Échanger Cadeau',
-      color: 'text-yellow-500',
-      action: () => alert('Échange de cadeau')
     }
+
+    
   ];
 
   return (
@@ -74,10 +71,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
               <User className="w-6 h-6 text-yellow-600" />
             </div>
             <div>
-              <p className="font-semibold">+225 13739186</p>
+              <p className="font-semibold">{currentUser?.phone || 'Utilisateur'}</p>
               <div className="flex items-center mt-1">
                 <span className="bg-white text-yellow-600 px-2 py-1 rounded-full text-xs font-medium">
-                  LV1
+                  {currentUser?.role === 'admin' ? 'ADMIN' : 'LV1'}
                 </span>
               </div>
             </div>
@@ -123,17 +120,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <img 
-              src="https://i.postimg.cc/HxQrvdFn/Whats-App-Image-2025-09-25-15-07-14-d79937d2.jpg" 
-              alt="Futuristia"
+              src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" 
+              alt="AFRIONE"
               className="w-16 h-12 object-cover rounded-lg mr-4"
             />
             <div>
               <h3 className="font-semibold text-gray-800">Centre de Tâches</h3>
-              <p className="text-sm text-gray-600">Complétez les tâches et obtenez des bonus généreux</p>
+              <p className="text-sm text-gray-600">Voir les détails de vos achats ici</p>
             </div>
           </div>
           <button 
-            onClick={() => alert('Centre de tâches')}
+            onClick={() => onNavigate('task-center')}
             className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm"
           >
             ALLER maintenant &gt;
@@ -159,6 +156,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
             </motion.button>
           ))}
         </div>
+
+        {/* Admin Panel Button (only for admins) */}
+        {currentUser?.role === 'admin' && (
+          <div className="mt-4">
+            <button
+              onClick={() => onNavigate('admin-dashboard' as ScreenType)}
+              className="w-full bg-purple-600 text-white py-3 rounded-full font-medium text-sm hover:bg-purple-700 transition-colors"
+            >
+              🔐 Panel Administrateur
+            </button>
+          </div>
+        )}
 
         {/* Logout Button */}
         <div className="mt-4">

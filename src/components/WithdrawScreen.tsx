@@ -1,34 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CreditCard } from 'lucide-react';
 import { ScreenType } from '../App';
+import { toast } from 'react-hot-toast';
+import api from '../services/api';
 
 interface WithdrawScreenProps {
   onNavigate: (screen: ScreenType) => void;
   userBalance: number;
+  onWithdraw: (amount: number, bankAccountId: number) => Promise<boolean>;
 }
 
-const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ onNavigate, userBalance }) => {
+const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ onNavigate, userBalance, onWithdraw }) => {
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [selectedCard, setSelectedCard] = useState('');
+  const [selectedCard, setSelectedCard] = useState('default');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [withdrawalsToday, setWithdrawalsToday] = useState(0);
+  const MAX_DAILY_WITHDRAWALS = 2;
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [selectedBankId, setSelectedBankId] = useState<number | null>(null);
+  const [loadingBanks, setLoadingBanks] = useState(true);
 
-  const handleSubmit = () => {
-    if (!withdrawAmount || !selectedCard) {
-      alert('Veuillez remplir tous les champs');
+  useEffect(() => {
+    api.getBankAccounts().then(res => {
+      setLoadingBanks(false);
+      if (res.success && res.data) {
+        const valid = res.data.filter(a => a.status === 'active' && a.is_verified);
+        setBankAccounts(valid);
+        if (valid.length === 1) setSelectedBankId(valid[0].id);
+        // Fix : si aucun compte, selectedBankId reste null
+      }
+    });
+    // Récupère le nombre de retraits aujourd'hui pour ce user
+    // api.getWithdrawalRequests().then(res => {
+    //   if (res.success && res.data) {
+    //     const count = res.data.filter(w => {
+    //       const d = new Date(w.created_at);
+    //       const today = new Date();
+    //       return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()
+    //         && ["pending", "approved"].includes(w.status);
+    //     }).length;
+    //     setWithdrawalsToday(count);
+    //   }
+    // });
+  }, []);
+
+  const handleSubmit = async () => {
+    if (bankAccounts.length === 0 || !selectedBankId) {
+      toast.error("Aucun compte bancaire vérifié. Ajoutez et faites valider un compte avant de retirer.");
+      return;
+    }
+    if (withdrawalsToday >= MAX_DAILY_WITHDRAWALS) {
+      toast.error('Vous avez atteint la limite de 2 retraits aujourd\'hui.');
+      return;
+    }
+    if (!withdrawAmount) {
+      toast.error('Veuillez saisir un montant');
       return;
     }
     
-    const amount = parseInt(withdrawAmount);
+    const amount = parseInt(withdrawAmount.replace(/[^\d]/g, ''));
     if (amount < 1000) {
-      alert('Le montant minimum de retrait est de 1 000 FCFA');
+      toast.error('Le montant minimum de retrait est de 1 000 FCFA');
       return;
     }
     
     if (amount > userBalance) {
-      alert('Solde insuffisant');
+      toast.error('Solde insuffisant');
       return;
     }
-    
-    alert(`Demande de retrait de ${amount} FCFA soumise avec succès !`);
+
+    setIsProcessing(true);
+    try {
+      const success = await onWithdraw(amount, selectedBankId!);
+      if (success) {
+        toast.success(`Demande de retrait de ${amount.toLocaleString()} FCFA soumise avec succès !`);
+        setTimeout(() => {
+          onNavigate('home');
+        }, 1500);
+      } else {
+        // patch : il se peut qu\'on soit rejeté côté backend
+        setWithdrawalsToday(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Erreur lors du retrait:', error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -52,7 +109,13 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ onNavigate, userBalance
           <p className="text-gray-600 text-sm mb-2">Solde actuel</p>
           <div className="flex items-center justify-center mb-4">
             <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-              <span className="text-yellow-600 font-bold text-sm">O</span>
+              <span className="text-yellow-600 font-bold text-sm">
+                <img 
+                src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
+                alt="afrione"
+                className='h-full w-full rounded-2xl' 
+                />
+              </span>
             </div>
             <span className="text-3xl font-bold text-gray-800">FCFA {userBalance}</span>
           </div>
@@ -60,17 +123,27 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ onNavigate, userBalance
 
         {/* Bank Card Selection */}
         <div className="mb-6">
-          <p className="text-gray-600 text-sm mb-3">Veuillez sélectionner votre carte bancaire</p>
-          <button 
-            onClick={() => onNavigate('bank-accounts')}
-            className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-yellow-300 transition-colors"
-          >
-            <div className="flex items-center">
-              <CreditCard className="w-5 h-5 text-gray-400 mr-3" />
-              <span className="text-gray-400">- - - - - - - - - - - - - - - -</span>
+          <p className="text-gray-600 text-sm mb-3">Sélectionnez la carte ou compte bancaire vérifié</p>
+          {loadingBanks ? (
+            <div className="text-center text-gray-400">Chargement des comptes...</div>
+          ) : bankAccounts.length === 0 ? (
+            <div className="text-red-500 text-sm font-semibold mb-2">
+              Aucun compte bancaire vérifié. <button onClick={()=>onNavigate('bank-accounts')} className="underline">Lier une carte</button>
             </div>
-            <span className="text-gray-400">&gt;</span>
-          </button>
+          ) : (
+            <select 
+              value={selectedBankId || ''}
+              onChange={e=>setSelectedBankId(Number(e.target.value))}
+              className="w-full p-3 border border-gray-300 rounded-lg mb-2"
+            >
+              <option value="">-- Choisissez un compte --</option>
+              {bankAccounts.map(acc => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.bank_name} - {acc.account_number} ({acc.account_holder})
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Withdrawal Amount */}
@@ -88,7 +161,7 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ onNavigate, userBalance
           </div>
           
           <div className="flex justify-between text-xs text-gray-500 mt-2">
-            <span>Montant reçu : FCFA 0</span>
+            <span>Montant reçu : FCFA {withdrawAmount ? Math.floor(parseInt(withdrawAmount.replace(/[^\d]/g, '')) * 0.85).toLocaleString() : 0}</span>
             <span>Taux de frais : 15%</span>
           </div>
         </div>
@@ -96,9 +169,10 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ onNavigate, userBalance
         {/* Confirm Button */}
         <button
           onClick={handleSubmit}
-          className="w-full bg-yellow-400 text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-500 transition-colors mb-6"
+          disabled={isProcessing || withdrawalsToday >= MAX_DAILY_WITHDRAWALS || bankAccounts.length === 0 || !selectedBankId}
+          className="w-full bg-yellow-400 text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-500 transition-colors mb-6 disabled:opacity-50"
         >
-          Confirmer
+          {isProcessing ? 'Traitement...' : withdrawalsToday >= MAX_DAILY_WITHDRAWALS ? 'Limite atteinte' : 'Confirmer'}
         </button>
 
         {/* Terms */}

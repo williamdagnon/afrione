@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { ScreenType } from '../App';
+import toast from 'react-hot-toast';
+import api from '../services/api';
 
 interface LinkBankCardScreenProps {
   onNavigate: (screen: ScreenType) => void;
@@ -10,11 +12,35 @@ const LinkBankCardScreen: React.FC<LinkBankCardScreenProps> = ({ onNavigate }) =
   const [selectedBank, setSelectedBank] = useState('');
   const [accountHolder, setAccountHolder] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Carte bancaire liée avec succès !');
-    onNavigate('bank-accounts');
+    if (!selectedBank || !accountHolder || !accountNumber) {
+      toast.error('Tous les champs sont obligatoires');
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      const res = await api.addBankAccount({
+        bank_name: selectedBank,
+        account_holder: accountHolder,
+        account_number: accountNumber,
+      });
+      if (res.success) {
+        toast.success('Compte lié avec succès !');
+        setSelectedBank('');
+        setAccountHolder('');
+        setAccountNumber('');
+        setTimeout(() => onNavigate('bank-accounts'), 1200);
+      } else {
+        toast.error(res.message || "Erreur lors de l'ajout du compte bancaire");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Erreur de liaison.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -29,9 +55,9 @@ const LinkBankCardScreen: React.FC<LinkBankCardScreenProps> = ({ onNavigate }) =
         </button>
         <div className="flex items-center">
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-sm">F</span>
+            <span className="text-white font-bold text-sm">A</span>
           </div>
-          <span className="text-yellow-500 font-semibold">Futuristia</span>
+          <span className="text-yellow-500 font-semibold">AFRIONE</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">Lier une carte bancaire</span>
       </div>
@@ -93,9 +119,10 @@ const LinkBankCardScreen: React.FC<LinkBankCardScreenProps> = ({ onNavigate }) =
             <div className="pt-4">
               <button
                 type="submit"
-                className="w-full bg-yellow-500 text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-600 transition-colors"
+                disabled={isProcessing}
+                className="w-full bg-yellow-500 text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-600 transition-colors disabled:opacity-50"
               >
-                Confirmer
+                {isProcessing ? 'Traitement...' : 'Confirmer'}
               </button>
             </div>
           </form>

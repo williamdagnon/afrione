@@ -1,157 +1,135 @@
-import React, { useState } from 'react';
-import { ArrowLeft, X, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { api } from '../services/api';
 import { ScreenType } from '../App';
 
 interface RechargeScreenProps {
   onNavigate: (screen: ScreenType) => void;
+  onRecharge: (amount: number) => Promise<boolean>;
 }
 
 const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
-  const [selectedAmount, setSelectedAmount] = useState('');
-  const [customAmount, setCustomAmount] = useState('');
-  const [selectedBank, setSelectedBank] = useState('cameroun');
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+  const [selectedBank, setSelectedBank] = useState<any>(null);
+  const [form, setForm] = useState({ amount: '', deposit_number: '', transaction_id: '' });
+  const [isLoadingBanks, setIsLoadingBanks] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState<'select'|'submit'>('select');
 
-  const predefinedAmounts = ['2,000', '6,000', '15,000', '45,000'];
-  const banks = [
-    { id: 'cameroun', name: 'Banque du Cameroun', selected: true },
-    { id: 'togo', name: 'Banque du Togo', selected: false },
-    { id: 'benin', name: 'Banque du Bénin', selected: false },
-    { id: 'burkina', name: 'Banque du Burkina Faso', selected: false }
-  ];
-
-  const handleAmountSelect = (amount: string) => {
-    setSelectedAmount(amount);
-    setCustomAmount('');
+  useEffect(() => { loadBanks(); }, []);
+  const loadBanks = async () => {
+    setIsLoadingBanks(true);
+    const response = await api.getPaymentMethods();
+    if(response.success && response.data) setPaymentMethods(response.data);
+    setIsLoadingBanks(false);
   };
 
-  const handleCustomAmountChange = (value: string) => {
-    setCustomAmount(value);
-    setSelectedAmount('');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
-
-  const handleSubmit = () => {
-    const amount = selectedAmount || customAmount;
-    if (!amount) {
-      alert('Veuillez sélectionner ou saisir un montant');
+  const quickAmounts = [3000, 6000, 8000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 80000, 100000, 150000, 200000];
+  const handleBankSelect = (bank: any) => {
+    if(!form.amount){
+      toast.error('Veuillez d\'abord saisir ou choisir un montant.');
       return;
     }
-    alert(`Recharge de ${amount} FCFA initiée avec ${banks.find(b => b.id === selectedBank)?.name}`);
+    setSelectedBank(bank);
+    setStep('submit');
+  };
+  const goBack = ()=>{ setStep('select'); setSelectedBank(null); };
+
+  const canSubmit = selectedBank && form.amount && form.deposit_number && form.transaction_id && !isSubmitting;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if(!canSubmit) return;
+    setIsSubmitting(true);
+    try {
+      const resp = await api.createManualDeposit({
+        payment_method_id: selectedBank.id,
+        amount: parseFloat(form.amount),
+        deposit_number: form.deposit_number,
+        transaction_id: form.transaction_id
+      });
+      if(resp.success) {
+        toast.success('Dépôt soumis, en attente de validation admin.');
+        onNavigate('home');
+      } else {
+        toast.error(resp.message || 'Erreur dépôt.');
+      }
+    } catch(e: any) {
+      toast.error(e.message || 'Erreur dépôt');
+    }
+    setIsSubmitting(false);
   };
 
   return (
-    <div className=" font-serif min-h-screen bg-gray-100">
-      {/* Header with VR Image */}
-      <div className="relative">
-        <img 
-          src="https://i.postimg.cc/HxQrvdFn/Whats-App-Image-2025-09-25-15-07-14-d79937d2.jpg" 
-          alt="Futuristia"
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="text-center text-white">
-            <button 
-              onClick={() => onNavigate('home')}
-              className="absolute top-4 left-4 text-white"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <button className="absolute top-4 right-4 text-white">
-              <X className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl font-bold">Arrivée rapide</h1>
+    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="font-serif min-h-screen flex flex-col bg-white">
+      <div className="p-4 max-w-lg mx-auto w-full">
+        {/* Stepper */}
+        <div className="flex justify-between items-center mb-6">
+          <div className={`${step==='select' ? 'font-bold text-yellow-700' : 'text-gray-400'}`}>1. Choisir la banque</div>
+          <div className={`h-0.5 flex-1 mx-2 ${step==='submit' ? 'bg-yellow-500':'bg-gray-200'}`}></div>
+          <div className={`${step==='submit' ? 'font-bold text-yellow-700' : 'text-gray-400'}`}>2. Soumettre le dépôt</div>
+        </div>
+        {/* Encadré infos */}
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 px-4 py-3 rounded mb-6 text-sm">
+          <p><b>Délais :</b> Les dépôts sont validés sous 24h max, après vérification par l’admin. Merci de saisir EXACTEMENT les références fournies par l’agence ou l’opérateur mobile !</p>
+          <p className="mt-2"><b>Astuce :</b> Vous pouvez contacter le support en cas de problème ou de retard inhabituel. Vérifiez vos informations avant de soumettre !</p>
+        </div>
+        {/* Banques - Étape 1 */}
+        {isLoadingBanks ? <div className="text-center p-8">Chargement banques ...</div> : step==='select' && (
+          <>
+            {/* Choix Montant d'abord */}
+            <div className="mb-5">
+              <p className="text-sm text-gray-700 mb-2">Montant à déposer (FCFA)</p>
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                {quickAmounts.map(v=> (
+                  <button key={v} type="button" onClick={()=>setForm({...form, amount: String(v)})}
+                    className={`py-2 rounded border ${form.amount==String(v)?'bg-yellow-500 text-white border-yellow-500':'bg-white text-gray-700 border-gray-200'} hover:border-yellow-400`}>{v.toLocaleString()}</button>
+                ))}
           </div>
+              <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="Autre montant (FCFA)" className="w-full px-4 py-2 border rounded" min={1}/>
         </div>
-      </div>
-
-      {/* Recharge Form */}
-      <div className="bg-white rounded-t-3xl -mt-6 relative z-10 p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Sélectionner le montant de recharge</h2>
-        
-        {/* Predefined Amounts */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          {predefinedAmounts.map((amount) => (
-            <button
-              key={amount}
-              onClick={() => handleAmountSelect(amount)}
-              className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
-                selectedAmount === amount
-                  ? 'border-yellow-500 bg-yellow-50 text-yellow-600'
-                  : 'border-gray-200 text-gray-600 hover:border-yellow-300'
-              }`}
-            >
-              {amount}
-            </button>
-          ))}
-        </div>
-
-        {/* Custom Amount */}
-        <div className="mb-6">
-          <p className="text-gray-600 text-sm mb-2">Entrer un autre montant</p>
-          <div className="relative">
-            <input
-              type="text"
-              value={customAmount}
-              onChange={(e) => handleCustomAmountChange(e.target.value)}
-              placeholder="Entrer le montant"
-              className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:border-yellow-500 pl-12"
-            />
-            <span className="absolute left-3 top-3 text-yellow-500 font-medium">FCFA</span>
-          </div>
-        </div>
-
-        {/* Payment Method */}
-        <div className="mb-6">
-          <p className="text-gray-600 text-sm mb-3">Méthode de recharge</p>
-          <div className="space-y-2">
-            {banks.map((bank) => (
-              <button
+            {/* Banques */}
+            <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-3">
+              {paymentMethods.map(bank => (
+                <motion.button
+                  type="button"
+                  whileHover={{ scale:1.02 }}
                 key={bank.id}
-                onClick={() => setSelectedBank(bank.id)}
-                className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
-                  selectedBank === bank.id
-                    ? 'border-yellow-500 bg-yellow-50'
-                    : 'border-gray-200 hover:border-yellow-300'
-                }`}
-              >
-                <div className="flex items-center">
-                  <div className="w-6 h-6 bg-yellow-100 rounded mr-3 flex items-center justify-center">
-                    <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-                  </div>
-                  <span className="text-gray-700">{bank.name}</span>
-                </div>
-                {selectedBank === bank.id && (
-                  <Check className="w-5 h-5 text-yellow-500" />
-                )}
-              </button>
+                  className={`w-full text-left rounded-lg border p-4 shadow ${selectedBank?.id===bank.id?'border-yellow-400 bg-yellow-50':'border-gray-200 bg-white'} transition`}
+                  onClick={()=>handleBankSelect(bank)}
+                >
+                  <span className="block text-lg font-semibold">{bank.bank_name}</span>
+                  <span className="block text-yellow-800">Titulaire: <span className="font-medium">{bank.account_holder}</span></span>
+                  <span className="block text-gray-500 text-sm">RIB: {bank.account_number}</span>
+                </motion.button>
             ))}
           </div>
+          </>
+        )}
+        {/* Formulaire - Étape 2 */}
+        {step==='submit' && selectedBank && (
+          <motion.div initial={{x:100,opacity:0}} animate={{x:0,opacity:1}} className="bg-yellow-100 rounded-xl p-6 mb-4">
+            <button type="button" onClick={goBack} className="mb-4 text-yellow-600 hover:underline">&lt; Changer de banque</button>
+            <p className="text-yellow-900 font-medium mb-3">Banque sélectionnée : <b>{selectedBank.bank_name}</b></p>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="Montant (FCFA)" className="w-full px-4 py-2 border rounded mb-2" required min={1}/>
+                <input name="deposit_number" value={form.deposit_number} onChange={handleChange} placeholder="N° de dépôt effectué" className="w-full px-4 py-2 border rounded mb-2" required/>
+                <input name="transaction_id" value={form.transaction_id} onChange={handleChange} placeholder="ID Transaction reçu (Mobile Money/banque)" className="w-full px-4 py-2 border rounded mb-2" required/>
         </div>
-
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-gray-300 text-gray-500 py-3 rounded-full font-medium text-sm mb-4"
-          disabled
-        >
-          Confirmer
-        </button>
-
-        {/* Info Text */}
-        <div className="text-center mb-4">
-          <p className="text-yellow-500 text-sm">
-            Si la recharge n'est pas entrée depuis longtemps, veuillez cliquer ici
-          </p>
-        </div>
-
-        {/* Terms */}
-        <div className="text-xs text-gray-500 space-y-1">
-          <p>1. Le montant minimum du dépôt est de 2 000 FCFA. Les fonds inférieurs à ce montant ne seront pas crédités.</p>
-          <p>2. Le montant du virement doit correspondre au montant indiqué dans l'ordre ; sinon, les fonds ne seront pas crédités.</p>
-          <p>3. Veuillez créer un nouvel ordre de virement pour chaque paiement et indiquer le compte du bénéficiaire. Ne l'enregistrez pas.</p>
-          <p>4. Veuillez patienter 10 à 20 minutes après la réussite du virement. Si vos fonds n'ont pas été crédités pendant une période prolongée, veuillez soumettre votre reçu de virement en haut de la page.</p>
-        </div>
+              <motion.button type="submit" whileTap={{scale:.98}} disabled={!canSubmit}
+                 className="w-full bg-yellow-500 text-white py-3 rounded font-medium text-sm hover:bg-yellow-600 disabled:opacity-50">
+                {isSubmitting? 'Soumission...' : 'Soumettre le dépôt'}
+              </motion.button>
+            </form>
+          </motion.div>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

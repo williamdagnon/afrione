@@ -5,163 +5,113 @@ import { ScreenType } from '../App';
 
 interface TeamScreenProps {
   onNavigate: (screen: ScreenType) => void;
+  referralInfos: any;
+  loadingReferral: boolean;
 }
 
-const TeamScreen: React.FC<TeamScreenProps> = ({ onNavigate }) => {
+const TeamScreen: React.FC<TeamScreenProps> = ({ onNavigate, referralInfos, loadingReferral }) => {
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const invitationCode = 'QAVYLD';
-  const invitationLink = 'https://omni-vraa.com/reg?code=QA';
+  const invitationCode = referralInfos?.code || '--';
+  const invitationLink = referralInfos?.link || '';
+  const teamLevels = referralInfos?.levels || [];
+  const totalUsers = referralInfos?.totalUsers || 0;
+  const totalRewards = referralInfos?.totalRewards || 0;
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(invitationCode);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(invitationLink);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const teamLevels = [
-    {
-      level: 'LV1',
-      commission: '25%',
-      users: 0,
-      rewards: 0
-    },
-    {
-      level: 'LV2',
-      commission: '3%',
-      users: 0,
-      rewards: 0
-    },
-    {
-      level: 'LV3',
-      commission: '2%',
-      users: 0,
-      rewards: 0
-    }
-  ];
-
   return (
     <div className="min-h-screen font-serif flex flex-col bg-gradient-to-br from-yellow-800 to-yellow-600">
       {/* Header */}
       <div className="flex justify-between items-center p-4 text-white">
-        <h1 className="text-lg font-semibold">Créer une équipe</h1>
-        <span className="text-sm">Mon équipe &gt;</span>
+        <h1 className="text-lg font-semibold">Mon équipe & Parrainage</h1>
       </div>
-
       {/* Invitation Section */}
       <div className="px-4 mb-6">
-        <div className="grid grid-cols-2 gap-4">
-          {/* Invitation Code */}
+        <div className="grid md:grid-cols-2 gap-4">
           <div className="bg-yellow-700 rounded-lg p-4 text-center">
-            <div className="mb-3">
-              <img 
-                src="https://i.postimg.cc/HxQrvdFn/Whats-App-Image-2025-09-25-15-07-14-d79937d2.jpg" 
-                alt="VR Setup"
-                className="w-full h-20 object-cover rounded-lg"
-              />
+            <div className="mb-2">
+              <span className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-xs">Mon code</span>
             </div>
-            <p className="text-white font-bold text-lg mb-1">{invitationCode}</p>
-            <p className="text-yellow-200 text-xs mb-3">Code d'invitation</p>
-            <button 
-              onClick={handleCopyCode}
-              className="w-full bg-yellow-400 text-white py-2 rounded-full text-xs font-medium hover:bg-yellow-500 transition-colors"
-            >
-              {copiedCode ? 'Copié!' : 'Copier le code'}
-            </button>
+            <p className="text-white font-bold text-2xl mb-2">{invitationCode}</p>
+            <button onClick={handleCopyCode} className="w-full bg-yellow-400 text-white py-2 rounded-full text-xs font-medium hover:bg-yellow-500 transition-colors mt-1 mb-4">{copiedCode ? 'Copié !' : 'Copier le code'}</button>
+            <div className="bg-yellow-50 text-yellow-800 rounded px-2 py-1 text-xs mb-1">À partager aux amis pour être parrain !</div>
           </div>
-
-          {/* Invitation Link */}
           <div className="bg-yellow-700 rounded-lg p-4 text-center">
-            <div className="mb-3">
-              <img 
-                src="https://i.postimg.cc/HxQrvdFn/Whats-App-Image-2025-09-25-15-07-14-d79937d2.jpg" 
-                alt="VR Headset"
-                className="w-full h-20 object-cover rounded-lg"
-              />
+            <div className="mb-2">
+              <span className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-xs">Lien parrain</span>
             </div>
-            <p className="text-white text-xs mb-1 break-all">{invitationLink}</p>
-            <p className="text-yellow-200 text-xs mb-3">Lien d'invitation</p>
-            <button 
-              onClick={handleCopyLink}
-              className="w-full bg-yellow-400 text-white py-2 rounded-full text-xs font-medium hover:bg-yellow-500 transition-colors"
-            >
-              {copiedLink ? 'Copié!' : 'Copier le lien'}
-            </button>
+            <p className="text-white text-xs mb-2 break-all">{invitationLink}</p>
+            <button onClick={handleCopyLink} className="w-full bg-yellow-400 text-white py-2 rounded-full text-xs font-medium hover:bg-yellow-500 transition-colors mt-1 mb-4">{copiedLink ? 'Copié !' : 'Copier le lien'}</button>
+            <div className="bg-yellow-50 text-yellow-800 rounded px-2 py-1 text-xs">Transmets ce lien pour inviter directement !</div>
           </div>
         </div>
       </div>
-
-      {/* Team Level Section */}
-      <div className="flex-1 bg-white rounded-t-3xl p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">NIVEAU D'ÉQUIPE</h2>
-          <p className="text-sm text-gray-600">Développez votre équipe et gagnez plus de revenus</p>
+      {/* Team Section */}
+      <div className="flex-1 bg-white rounded-t-3xl px-2 py-6 md:px-8 md:py-10">
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">Mon équipe</h2>
+        <div className="flex gap-6 mb-4 flex-wrap">
+          <div className="bg-gray-100 rounded-xl px-6 py-3 text-center">
+            <p className="text-lg font-bold text-yellow-700">{totalUsers}</p>
+            <p className="text-xs text-gray-600">Total filleuls</p>
+          </div>
+          <div className="bg-gray-100 rounded-xl px-6 py-3 text-center">
+            <p className="text-lg font-bold text-yellow-700">{totalRewards}</p>
+            <p className="text-xs text-gray-600">Total commissions</p>
+          </div>
         </div>
-
-        <div className="space-y-4 mb-6">
-          {teamLevels.map((level, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <span className="bg-yellow-400 text-white px-3 py-1 rounded-full text-xs font-medium mr-4">
-                    {level.level}
-                  </span>
-                  <div>
-                    <p className="font-semibold text-gray-800">{level.commission}</p>
-                    <p className="text-xs text-gray-600">Commission</p>
+        {/* Niveaux */}
+        {loadingReferral ? (
+          <div className="text-center py-12 text-gray-500 animate-pulse">Chargement membres de l’équipe...</div>
+        ) : (
+          <div className="space-y-6">
+            {[1,2,3].map(lvl => {
+              const levelData = teamLevels.find((level:any)=>level.level===lvl||String(level.level)===String(lvl));
+              return (
+                <div key={lvl} className="bg-gray-50 rounded-lg p-4 shadow-md">
+                  <h3 className="font-semibold text-yellow-700 mb-3">Niveau {lvl}</h3>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Commission {levelData?.commission||'-'}%</span>
+                    <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded">Membres {levelData?.users?.length||0}</span>
+                  </div>
+                  <div className="mt-4">
+                  {!levelData||!levelData.users||levelData.users.length===0 ? (
+                    <div className="text-gray-400 italic">Aucun filleul à ce niveau.</div>
+                  ) : (
+                    <ul className="space-y-1">
+                      {levelData.users.map((user:any, i:number) => (
+                        <li key={user.id || i} className="border-b py-1 flex items-center gap-2 text-gray-800">
+                          <Users className="w-4 h-4 text-yellow-500"/>
+                          <span className="font-semibold">{user.display_name||user.name||user.phone}</span>
+                          <span className="text-gray-500 text-xs">{user.phone}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   </div>
                 </div>
-                <div className="text-center">
-                  <p className="font-semibold text-gray-800">{level.users}</p>
-                  <p className="text-xs text-gray-600">Utilisateurs</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-semibold text-gray-800">{level.rewards}</p>
-                  <p className="text-xs text-gray-600">Récompenses</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Statistics */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-gray-100 rounded-lg p-4 text-center">
-            <img 
-              src="https://i.postimg.cc/HxQrvdFn/Whats-App-Image-2025-09-25-15-07-14-d79937d2.jpg" 
-              alt="Total Users"
-              className="w-full h-20 object-cover rounded-lg mb-2"
-            />
-            <p className="font-bold text-2xl text-gray-800">0</p>
-            <p className="text-sm text-gray-600">Total utilisateurs &gt;</p>
+              );
+            })}
           </div>
-          <div className="bg-gray-100 rounded-lg p-4 text-center">
-            <img 
-              src="https://i.postimg.cc/HxQrvdFn/Whats-App-Image-2025-09-25-15-07-14-d79937d2.jpg" 
-              alt="Total Rewards"
-              className="w-full h-20 object-cover rounded-lg mb-2"
-            />
-            <p className="font-bold text-2xl text-gray-800">0</p>
-            <p className="text-sm text-gray-600">Total récompenses &gt;</p>
-          </div>
-        </div>
-
-        {/* Bonus Information */}
-        <div className="bg-yellow-50 rounded-lg p-4 text-sm text-gray-700 space-y-2">
-          <p>En invitant un ami à s'inscrire et à investir, vous recevez instantanément un bonus de 30 % de son investissement.</p>
-          <p>En investissant avec les membres de votre équipe de niveau 2, vous recevez un bonus de 3 %.</p>
-          <p>En investissant avec les membres de votre équipe de niveau 3, vous recevez un bonus de 2 %.</p>
-          <p>Une fois votre investissement effectué, le bonus sera immédiatement crédité sur votre compte et disponible pour un retrait immédiat.</p>
+        )}
+        {/* Info commission */}
+        <div className="mt-8 bg-yellow-50 rounded-lg p-4 text-sm text-gray-700 space-y-2">
+          <p><strong>LV1 :</strong> 25% sur les achats directs.</p>
+          <p><strong>LV2 :</strong> 3% sur les achats niveau 2.</p>
+          <p><strong>LV3 :</strong> 2% sur les achats niveau 3.</p>
+          <p>Bonus crédité automatiquement dès validation d’un achat par un filleul.</p>
         </div>
       </div>
-
       <BottomNavigation currentScreen="team" onNavigate={onNavigate} />
     </div>
   );

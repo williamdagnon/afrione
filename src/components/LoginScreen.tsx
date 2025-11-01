@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 interface LoginScreenProps {
-  onLogin: (phone: string, password: string) => boolean;
+  onLogin: (phone: string, password: string) => Promise<boolean>;
   onGoToRegister: () => void;
   defaultCredentials: {
     phone: string;
@@ -24,21 +24,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoToRegister, defa
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
-    // Simulation d'un délai de connexion
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const fullPhone = phoneNumber.startsWith('+') ? phoneNumber : `${countryCode}${phoneNumber}`;
-
-    const success = onLogin(fullPhone, password);
-
+    await new Promise(resolve => setTimeout(resolve, 400));
+    let fullPhone = phoneNumber.startsWith('+') ? phoneNumber : `${countryCode}${phoneNumber}`;
+    if (!fullPhone.startsWith('+')) fullPhone = `+${fullPhone}`;
+    const allowedPrefixes = ['+225', '+228', '+226', '+237', '+229'];
+    if (!allowedPrefixes.some(p=>fullPhone.startsWith(p)) || !fullPhone.match(/^\+\d{8,14}$/)) {
+      setIsLoading(false);
+      setError('Numéro invalide. Pays autorisés : +225, +228, +226, +237, +229');
+      toast.error('Numéro invalide');
+      return;
+    }
+    const success = await onLogin(fullPhone, password);
     if (!success) {
-      setError('Numéro de téléphone ou mot de passe incorrect');
+      setError('Numéro ou mot de passe incorrect');
       toast.error('Échec de la connexion');
     } else {
       toast.success('Connexion en cours...');
     }
-
     setIsLoading(false);
   };
     
@@ -48,17 +50,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoToRegister, defa
   };
 
   return (
-    <div className="flex items-center justify-center font-serif min-h-screen p-4">
+    <div className="flex items-center justify-center font-serif min-h-screen p-4" 
+    style={{backgroundImage: 'url(https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg)', 
+    backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
             
-              <img src="https://i.postimg.cc/ZRwNcf6M/IMG-20250925-WA0001-1.jpg" 
-              alt="Futuristia Logo" className='w-20 h-20 rounded-full' />
+              <img src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
+              alt="AFRIONE Logo" className='w-20 h-20 rounded-full' />
             
           </div>
-          <h1 className="text-white text-2xl font-light">Futuristia</h1>
+          <h1 className="text-white text-2xl font-light">AFRIONE</h1>
         </div>
 
         {/* Login Form */}
@@ -78,22 +82,25 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoToRegister, defa
                   aria-label="Code pays"
                 >
                   <option>+225</option>
-                  <option>+33</option>
-                  <option>+1</option>
+                  <option>+228</option>
+                  <option>+226</option>
+                  <option>+237</option>
+                  <option>+229</option>
                 </select>
                 <input
                   id="phone"
                   name="phone"
                   type="tel"
-                  placeholder="Entrez le numéro de téléphone"
+                  placeholder="Numéro ex : 0745678912 ou +2250745678912"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                   className="w-full pl-24 pr-4 py-3 border-b border-gray-300 outline-none text-sm text-gray-700 placeholder-gray-400 focus:border-yellow-500 bg-transparent"
                   required
                   autoComplete="tel"
                   aria-label="Numéro de téléphone sans code pays"
                 />
               </div>
+              <div className="text-xs text-gray-400 mt-1 pl-2">Format accepté : +225XXXXXXXX ou 07XXXXXXXX | Pays autorisés : Côte d’Ivoire, Togo, Burkina, Cameroun, Bénin</div>
             </div>
 
             {/* Password Input */}
@@ -133,7 +140,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoToRegister, defa
             )}
 
             {/* Default Credentials Helper */}
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+            {/* <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
               <p className="text-xs text-blue-700 mb-2">Identifiants par défaut :</p>
               <p className="text-xs text-blue-600">Téléphone: {defaultCredentials.phone}</p>
               <p className="text-xs text-blue-600">Mot de passe: {defaultCredentials.password}</p>
@@ -144,12 +151,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoToRegister, defa
               >
                 Utiliser ces identifiants
               </button>
-            </div>
+            </div> */}
 
             {/* Login Button */}
             <motion.button
               type="submit"
-              className="w-full bg-yellow-500 text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-600 transition-colors mb-4"
+              className="w-full bg-black text-white py-3 rounded-full font-medium text-sm hover:bg-yellow-600 transition-colors mb-4"
               whileTap={{ scale: 0.98 }}
               disabled={isLoading}
             >

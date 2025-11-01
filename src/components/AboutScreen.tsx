@@ -19,9 +19,15 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ onNavigate }) => {
         </button>
         <div className="flex items-center">
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-sm">O</span>
+            <span className="text-white font-bold text-sm">
+              <img 
+                src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
+                alt="afrione"
+                className='h-full w-full rounded-2xl' 
+                />
+            </span>
           </div>
-          <span className="text-yellow-500 font-semibold">futuristia</span>
+          <span className="text-yellow-500 font-semibold">AFRIONE</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">À propos de nous</span>
       </div>
@@ -29,42 +35,37 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ onNavigate }) => {
       {/* Content */}
       <div className="p-6 text-gray-700 leading-relaxed">
         <p className="mb-4">
-          Futuristia est bien plus qu’une entreprise : c’est un mouvement. 
-          Notre mission est d’imaginer et de créer un futur où l’impossible devient réalité, 
-          où l’humanité peut voyager à travers le temps et l’espace, guidée par la lumière du progrès.»
+          AFRIONE est une entreprise technologique africaine spécialisée dans la vente et 
+          la distribution de téléphones portables de nouvelle génération. 
+          Depuis sa création, notre ambition est claire : 
+          rendre la technologie mobile accessible à tous, tout en offrant des produits fiables, 
+          performants et élégants.
         </p>
 
         <p className="mb-4">
-          Les produits Futuristia s'étendent au-delà du jeu et du divertissement en réalité 
-          virtuelle, s'étendant à l'e-sport, à la formation en entreprise, à l'éducation, à la 
-          simulation militaire et à d'autres domaines. Son produit phare, l'Omni One, est 
-          conçu pour le marché grand public, offrant un format compact et pratique 
-          compatible avec les principaux casques de réalité virtuelle.
+          Nous croyons profondément au potentiel du continent africain et à sa capacité à se hisser au rang 
+          des leaders mondiaux du numérique.
+           C’est pourquoi AFRIONE s’engage à proposer des smartphones adaptés aux besoins et réalités 
+           locales : une autonomie prolongée, une grande robustesse, une connectivité stable et des 
+           fonctionnalités modernes.
         </p>
 
         <p className="mb-4">
-          Grâce à son matériel innovant et à ses expériences immersives, Futuristia est 
-          reconnu comme un pionnier de la réalité virtuelle, déterminé à rapprocher 
-          l'exploration des mondes virtuels des sports réels.
+          Grâce à un réseau de partenaires solides et à une équipe passionnée, 
+          nous veillons à offrir à nos clients une expérience d’achat fluide, 
+          sécurisée et personnalisée. Notre service après-vente est au cœur de 
+          notre démarche, car pour nous, un client satisfait est notre meilleure publicité.
         </p>
 
-        <h3 className="font-semibold text-gray-800 mb-2">Pourquoi Futuristia ?</h3>
+        <h3 className="font-semibold text-gray-800 mb-2">Pourquoi AFRIONE ?</h3>
 
         <p className="mb-4">
-          Chez Futuristia, nous formons une équipe performante, unie par une passion 
-          commune : donner vie à la réalité virtuelle immersive et intégrale. Nous 
-          sommes animés par une philosophie qui repousse les limites et une culture de 
-          l'excellence, rejetant la médiocrité. Notre équipe est animée par l'innovation et 
-          allie compétences et créativité pour développer des matériels et logiciels VR 
-          révolutionnaires qui façonnent l'avenir du divertissement.
+          Notre vision est de faire d’AFRIONE la référence africaine en matière de technologie mobile, 
+          en accompagnant la digitalisation de notre continent et en inspirant une 
+          nouvelle génération d’utilisateurs connectés et ambitieux.
         </p>
 
-        <p>
-          Rejoindre Futuristia, c'est bien plus que rejoindre une entreprise ; c'est l'occasion 
-          de laisser votre empreinte dans l'industrie du divertissement, d'inspirer et de 
-          vous inspirer, et de devenir un acteur clé de notre aventure, soutenue par des 
-          investisseurs, visant à transformer le monde du jeu vidéo et des expériences.
-        </p>
+      
       </div>
     </div>
   );
