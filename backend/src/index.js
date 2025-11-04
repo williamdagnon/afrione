@@ -11,7 +11,6 @@ import productRoutes from '../routes/productRoutes.js';
 import purchaseRoutes from '../routes/purchaseRoutes.js';
 import profileRoutes from '../routes/profileRoutes.js';
 import notificationRoutes from '../routes/notificationRoutes.js';
-// Nouvelles routes
 import transactionRoutes from '../routes/transactions.js';
 import referralRoutes from '../routes/referrals.js';
 import bankAccountRoutes from '../routes/bankAccounts.js';
@@ -26,26 +25,40 @@ import manualDepositRoutes from '../routes/manualDeposits.js';
 // Chargement des variables d'environnement
 dotenv.config();
 
-// Import des CRON jobs
 import { initCronJobs } from '../cron/index.js';
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// --------------------
+// CORS
+// --------------------
+const FRONTEND_URL = process.env.APP_DOMAIN || 'https://invigorating-embrace-production.up.railway.app'; 
+app.use(cors({
+  origin: FRONTEND_URL,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
+
+// --------------------
+// Middleware JSON
+// --------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger docs
+// --------------------
+// Swagger
+// --------------------
 const swaggerPath = path.resolve('docs/swagger.json');
 if (fs.existsSync(swaggerPath)) {
   const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath));
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 }
 
+// --------------------
 // Routes de base
+// --------------------
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     success: true,
     message: 'API Futuristia backend opérationnelle.',
     version: '1.0.0',
@@ -60,13 +73,14 @@ app.get('/', (req, res) => {
   });
 });
 
-// Routes de l'API
+// --------------------
+// Routes API
+// --------------------
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/purchases', purchaseRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/notifications', notificationRoutes);
-// Nouvelles routes
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
@@ -78,24 +92,28 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/payment-methods', paymentMethodRoutes);
 app.use('/api/manual-deposits', manualDepositRoutes);
 
-// Middleware de gestion des erreurs 404
+// --------------------
+// Middleware erreurs
+// --------------------
 app.use((req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     success: false,
-    message: 'Route non trouvée' 
+    message: 'Route non trouvée'
   });
 });
 
-// Middleware de gestion des erreurs globales
 app.use((err, req, res, next) => {
   console.error('Erreur serveur:', err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     success: false,
     message: 'Erreur interne du serveur',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
+// --------------------
+// Lancement serveur
+// --------------------
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`\n🚀 Serveur backend démarré sur http://localhost:${PORT}`);
