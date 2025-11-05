@@ -14,7 +14,16 @@ const TeamScreen: React.FC<TeamScreenProps> = ({ onNavigate, referralInfos, load
   const [copiedLink, setCopiedLink] = useState(false);
 
   const invitationCode = referralInfos?.code || '--';
-  const invitationLink = referralInfos?.link || '';
+  // Construire le lien de parrainage en privilégiant :
+  // 1) le domaine forcé stocké dans localStorage ('referral_domain')
+  // 2) le lien renvoyé par l'API (referralInfos.link)
+  // 3) la base courante (window.location.origin) + '/register?ref=' + code
+  const forcedDomain = typeof window !== 'undefined' ? localStorage.getItem('referral_domain') : null;
+  const apiLink = referralInfos?.link || '';
+  const baseDomain = forcedDomain || apiLink || (typeof window !== 'undefined' ? window.location.origin : '');
+  const invitationLink = apiLink
+    ? (forcedDomain ? `${forcedDomain}/register?ref=${invitationCode}` : apiLink)
+    : (invitationCode && baseDomain ? `${baseDomain.replace(/\/$/, '')}/register?ref=${invitationCode}` : '');
   const teamLevels = referralInfos?.levels || [];
   const totalUsers = referralInfos?.totalUsers || 0;
   const totalRewards = referralInfos?.totalRewards || 0;
