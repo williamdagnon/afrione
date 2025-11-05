@@ -125,30 +125,29 @@ export const register = async (req, res) => {
     }
     userId = userIdRows[0].id;
 
-    // PATCH AI - Après création de l'utilisateur, créditez automatiquement le bonus d'inscription et écrivez la transaction/notification
+    // Créditer le bonus d'inscription et créer la transaction
     const SIGNUP_BONUS = Number(process.env.SIGNUP_BONUS || 300);
+    
+    // Mettre à jour le solde
     await connection.query(
       'UPDATE profiles SET balance = balance + ? WHERE id = ?',
       [SIGNUP_BONUS, userId]
     );
-    await connection.query(
-      `INSERT INTO transactions (user_id, type, amount, status, description)
-       VALUES (?, 'bonus', ?, 'completed', ?)`,
-      [userId, SIGNUP_BONUS, "Bonus d'inscription"]
-    );
-    await connection.query(
-      `INSERT INTO notifications (user_id, title, body, is_read)
-       VALUES (?, ?, ?, 0)`,
-      [userId, 'Félicitations !', `Vous avez reçu un bonus d'inscription de ${SIGNUP_BONUS} FCFA`]
-    );
 
-    // Créer la transaction pour le bonus d'inscription
+    // Créer la transaction avec balance_before et balance_after
     await connection.query(`
       INSERT INTO transactions (
         user_id, type, amount, balance_before, balance_after,
         description, status
       ) VALUES (?, 'bonus', ?, 0, ?, ?, 'completed')
-    `, [userId, bonusAmount, bonusAmount, 'Bonus d\'inscription']);
+    `, [userId, SIGNUP_BONUS, SIGNUP_BONUS, 'Bonus d\'inscription']);
+
+    // Créer la notification
+    await connection.query(
+      `INSERT INTO notifications (user_id, title, body, is_read)
+       VALUES (?, ?, ?, 0)`,
+      [userId, 'Félicitations !', `Vous avez reçu un bonus d'inscription de ${SIGNUP_BONUS} FCFA`]
+    );
 
     // Créer la récompense
     await connection.query(`
