@@ -90,9 +90,18 @@ function App() {
       const team = await api.getReferralTeam();   // /referrals/my-team
       if (stats.success && team.success) {
         const code = stats.data?.referral_code || '';
+        // Construire le lien d'invitation : priorité au domaine forcé en localStorage,
+        // sinon utiliser le lien fourni par l'API, sinon fallback sur window.location.origin
+        const forcedDomain = typeof window !== 'undefined' ? localStorage.getItem('referral_domain') : null;
+        const apiLink = team.data?.referralLink || '';
+        const baseDomain = forcedDomain || apiLink || (typeof window !== 'undefined' ? window.location.origin : '');
+        const link = apiLink
+          ? (forcedDomain ? `${forcedDomain.replace(/\/$/, '')}/register?ref=${code}` : apiLink)
+          : (code && baseDomain ? `${baseDomain.replace(/\/$/, '')}/register?ref=${code}` : '');
+
         setReferralInfos({
           code,
-          link: code ? `http://localhost:5173/register?ref=${code}` : '',
+          link,
           levels: team.data?.levels || [],
           totalUsers: team.data?.totalUsers || 0,
           totalRewards: team.data?.totalRewards || 0,
