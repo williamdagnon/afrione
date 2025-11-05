@@ -291,9 +291,10 @@ export const updateUserBalance = async (req, res) => {
     
     await connection.query(`
       INSERT INTO transactions (
-        user_id, type, amount, status, description
-      ) VALUES (?, ?, ?, 'completed', ?)
-    `, [id, transactionType, parsedAmount, description]);
+        user_id, type, amount, balance_before, balance_after,
+        status, description
+      ) VALUES (?, ?, ?, ?, ?, 'completed', ?)
+    `, [id, transactionType, parsedAmount, oldBalance, newBalance, description]);
 
     // Logger l'action
     await connection.query(`
