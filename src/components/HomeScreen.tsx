@@ -97,7 +97,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="text-center" onClick={() => onNavigate('recharge')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
-              <img src="https://i.postimg.cc/RVDD0T64/deposit-4.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
+              <img src="https://i.postimg.cc/RVDD0T64/deposit-4.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" onClick={() => onNavigate('recharge')} />
             </div>
             <button 
               onClick={() => onNavigate('recharge')}
@@ -108,7 +108,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
           </div>
           <div className="text-center" onClick={() => onNavigate('withdraw')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
-              <img src="https://i.postimg.cc/HnjFSvcv/cash-withdrawal.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
+              <img src="https://i.postimg.cc/HnjFSvcv/cash-withdrawal.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" onClick={() => onNavigate('withdraw')} />
             </div>
             <button 
               onClick={() => onNavigate('withdraw')}
@@ -119,7 +119,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
           </div>
           <div className="text-center" onClick={() => onNavigate('check-in')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
-              <img src="https://i.postimg.cc/J4zjFVhz/calendar.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
+              <img src="https://i.postimg.cc/J4zjFVhz/calendar.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" onClick={() => onNavigate('check-in')} />
             </div>
             <button 
               onClick={() => onNavigate('check-in')}
@@ -130,7 +130,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
           </div>
           <div className="text-center" onClick={() => onNavigate('task-center')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
-              <img src="https://i.postimg.cc/ZR95NHYZ/checklist.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
+              <img src="https://i.postimg.cc/ZR95NHYZ/checklist.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" onClick={() => onNavigate('task-center')} />
             </div>
             <button 
               onClick={() => onNavigate('task-center')}
