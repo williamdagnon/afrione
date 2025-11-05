@@ -65,12 +65,17 @@ export const approveManualDeposit = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Dépôt non trouvé ou déjà traité' });
     }
     const deposit = deposits[0];
-    // Créditer le solde
-    await connection.query('UPDATE profiles SET balance=balance+? WHERE id=?', [deposit.amount, deposit.user_id]);
+  // Récupérer le solde avant mise à jour
+  const [profileRows] = await connection.query('SELECT balance FROM profiles WHERE id = ?', [deposit.user_id]);
+  const balanceBefore = parseFloat(profileRows[0]?.balance || 0);
+  const newBalance = balanceBefore + parseFloat(deposit.amount);
+
+  // Créditer le solde
+  await connection.query('UPDATE profiles SET balance=? WHERE id=?', [newBalance, deposit.user_id]);
     // Statut et log dépôt
     await connection.query('UPDATE manual_deposits SET status="approved", admin_id=?, processed_at=NOW() WHERE id=?', [adminId, id]);
-    // Transaction
-    await connection.query('INSERT INTO transactions (user_id, amount, type, status, description) VALUES (?, ?, "deposit", "completed", ?)', [deposit.user_id, deposit.amount, 'Dépôt manuel validé']);
+  // Transaction (inclure balance_before/after)
+  await connection.query('INSERT INTO transactions (user_id, amount, type, balance_before, balance_after, status, description) VALUES (?, ?, "deposit", ?, ?, "completed", ?)', [deposit.user_id, deposit.amount, balanceBefore, newBalance, 'Dépôt manuel validé']);
     // Notification
     await connection.query('INSERT INTO notifications (user_id, title, body, is_read) VALUES (?, "Dépôt validé", "Votre dépôt manuel a été validé et crédité !", 0)', [deposit.user_id]);
     await connection.commit();
