@@ -125,17 +125,23 @@ export const rechargeBalance = async (req, res) => {
 
     await connection.beginTransaction();
 
+    // Récupérer solde avant mise à jour
+    const [profileRows] = await connection.query('SELECT balance FROM profiles WHERE id = ?', [userId]);
+    const oldBalance = parseFloat(profileRows[0]?.balance || 0);
+    const parsedAmount = parseFloat(amount);
+    const newBalance = oldBalance + parsedAmount;
+
     // Mettre à jour le solde
     await connection.query(
-      'UPDATE profiles SET balance = balance + ? WHERE id = ?',
-      [amount, userId]
+      'UPDATE profiles SET balance = ? WHERE id = ?',
+      [newBalance, userId]
     );
 
-    // Enregistrer la transaction
+    // Enregistrer la transaction (inclure balance_before/after pour la conformité avec le schéma)
     await connection.query(
-      `INSERT INTO transactions (user_id, type, amount, status, payment_method, reference, description)
-       VALUES (?, 'deposit', ?, 'completed', ?, ?, ?)`,
-      [userId, amount, payment_method, reference || null, `Rechargement de ${amount} FCFA`]
+      `INSERT INTO transactions (user_id, type, amount, balance_before, balance_after, status, payment_method, reference, description)
+       VALUES (?, 'deposit', ?, ?, ?, 'completed', ?, ?, ?)`,
+      [userId, parsedAmount, oldBalance, newBalance, payment_method, reference || null, `Rechargement de ${parsedAmount} FCFA`]
     );
 
     // Créer une notification
@@ -242,12 +248,23 @@ export const withdrawBalance = async (req, res) => {
       });
     }
 
+    // Calculer les frais de retrait
+    const [feeSettings] = await connection.query(
+      'SELECT setting_value FROM system_settings WHERE setting_key = ?',
+      ['withdrawal_fee_rate']
+    );
+
+    const parsedAmount = parseFloat(amount);
+    const feeRate = parseFloat(feeSettings[0]?.setting_value || 15);
+    const fee = (parsedAmount * feeRate) / 100;
+    const netAmount = parsedAmount - fee;
+
     // Créer une demande de retrait (en attente d'approbation admin)
     const [result] = await connection.query(
       `INSERT INTO withdrawal_requests 
-       (user_id, amount, bank_account_id, status) 
-       VALUES (?, ?, ?, 'pending')`,
-      [userId, amount, bank_account_id]
+       (user_id, amount, fee, fee_percentage, net_amount, bank_account_id, status) 
+       VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
+      [userId, parsedAmount, fee, feeRate, netAmount, bank_account_id]
     );
 
     // Geler le montant dans le solde (optionnel - à implémenter si nécessaire)
@@ -260,7 +277,7 @@ export const withdrawBalance = async (req, res) => {
     await connection.query(
       `INSERT INTO notifications (user_id, title, body, is_read) 
        VALUES (?, ?, ?, FALSE)`,
-      [userId, 'Demande de retrait', `Votre demande de retrait de ${amount} FCFA est en cours de traitement`]
+      [userId, 'Demande de retrait', `Votre demande de retrait de ${parsedAmount} FCFA est en cours de traitement (frais: ${fee} FCFA, net: ${netAmount} FCFA)`]
     );
 
     await connection.commit();
@@ -270,7 +287,9 @@ export const withdrawBalance = async (req, res) => {
       message: 'Demande de retrait créée avec succès. En attente d\'approbation.',
       data: {
         withdrawal_request_id: result.insertId,
-        amount: amount,
+        amount: parsedAmount,
+        fee,
+        net_amount: netAmount,
         status: 'pending'
       }
     });
