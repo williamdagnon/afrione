@@ -8,7 +8,7 @@ export const getMyTeam = async (req, res) => {
   try {
     connection = await pool.getConnection();
     const userId = req.user.id;
-    const appDomain = process.env.APP_DOMAIN || 'http://localhost:5173';
+    const appDomain = process.env.APP_DOMAIN || 'https://invigorating-embrace-production.up.railway.app/';
 
     // Récupérer mon code de parrainage pour le lien
     const [myProfile] = await connection.query(
