@@ -8,7 +8,10 @@ export const getMyTeam = async (req, res) => {
   try {
     connection = await pool.getConnection();
     const userId = req.user.id;
-    const appDomain = process.env.APP_DOMAIN || 'https://invigorating-embrace-production.up.railway.app';
+  // Déterminer le domaine à utiliser pour les liens de parrainage.
+  // Priorité : origine de la requête (header `Origin`) -> APP_DOMAIN env -> construction à partir de la requête -> valeur par défaut.
+  const requestOrigin = connection ? (req.get('origin') || `${req.protocol}://${req.get('host')}`) : (process.env.APP_DOMAIN || '');
+  const appDomain = req.get('origin') || process.env.APP_DOMAIN || `${req.protocol}://${req.get('host')}` || 'https://invigorating-embrace-production.up.railway.app';
 
     // Récupérer mon code de parrainage pour le lien
     const [myProfile] = await connection.query(
