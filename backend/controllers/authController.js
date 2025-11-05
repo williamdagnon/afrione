@@ -133,7 +133,7 @@ export const register = async (req, res) => {
     );
     await connection.query(
       `INSERT INTO transactions (user_id, type, amount, status, description)
-       VALUES (?, 'signup_bonus', ?, 'completed', ?)`,
+       VALUES (?, 'bonus', ?, 'completed', ?)`,
       [userId, SIGNUP_BONUS, "Bonus d'inscription"]
     );
     await connection.query(
