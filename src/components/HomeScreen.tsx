@@ -95,7 +95,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
 
         {/* Action Buttons */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="text-center">
+          <div className="text-center" onClick={() => onNavigate('recharge')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <img src="https://i.postimg.cc/RVDD0T64/deposit-4.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
             </div>
@@ -106,7 +106,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
               Recharger
             </button>
           </div>
-          <div className="text-center">
+          <div className="text-center" onClick={() => onNavigate('withdraw')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <img src="https://i.postimg.cc/HnjFSvcv/cash-withdrawal.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
             </div>
@@ -117,7 +117,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
               Retirer
             </button>
           </div>
-          <div className="text-center">
+          <div className="text-center" onClick={() => onNavigate('check-in')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <img src="https://i.postimg.cc/J4zjFVhz/calendar.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
             </div>
@@ -128,7 +128,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
               Pointage
             </button>
           </div>
-          <div className="text-center">
+          <div className="text-center" onClick={() => onNavigate('task-center')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <img src="https://i.postimg.cc/ZR95NHYZ/checklist.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" />
             </div>
