@@ -153,14 +153,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegister, onGoToLogin
 
             {/* Verification Code (editable) */}
             <div className="mb-6">
-              <label htmlFor="verification" className="sr-only">Code d'invitation</label>
+              <label htmlFor="verification" className="sr-only">Code d'invitation (Falcultatif)</label>
               <div className="relative">
                 <Code className="w-5 h-5 text-yellow-500 mr-3" aria-hidden />
                 <input
                   id="verification"
                   name="verification"
                   type="text"
-                  placeholder="Code d'invitation"
+                  placeholder="Code d'invitation (Falcultatif)"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border-b border-gray-300 outline-none text-sm text-gray-700 placeholder-gray-400 focus:border-yellow-500 bg-transparent"
