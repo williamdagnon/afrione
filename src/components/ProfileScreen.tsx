@@ -66,6 +66,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
       {/* Profile Header */}
       <div className="bg-yellow-400 p-6 text-white">
         <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => onNavigate('home')}
+            className="mr-2 p-2 rounded-full hover:bg-yellow-800/30 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            aria-label="Retour à l'accueil"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
           <div className="flex items-center">
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-4">
               <User className="w-6 h-6 text-yellow-600" />
@@ -79,6 +88,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
               </div>
             </div>
           </div>
+          <span className="w-8" />
         </div>
 
         {/* Balance Section */}
