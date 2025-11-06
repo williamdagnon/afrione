@@ -35,21 +35,38 @@ export const deletePaymentMethod = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Vérifier si la méthode de paiement est utilisée dans des dépôts
-    const [deposits] = await pool.query('SELECT COUNT(*) as count FROM manual_deposits WHERE payment_method_id = ?', [id]);
+    // Vérifier les dépôts en attente
+    const [pendingDeposits] = await pool.query(
+      'SELECT COUNT(*) as count FROM manual_deposits WHERE payment_method_id = ? AND status = ?', 
+      [id, 'pending']
+    );
     
-    if (deposits[0].count > 0) {
+    if (pendingDeposits[0].count > 0) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Cette méthode de paiement ne peut pas être supprimée car elle est utilisée dans des dépôts'
+        message: 'Cette méthode de paiement ne peut pas être supprimée car il y a des dépôts en attente'
+      });
+    }
+
+    // Vérifier si la méthode a été utilisée pour des dépôts approuvés
+    const [approvedDeposits] = await pool.query(
+      'SELECT COUNT(*) as count FROM manual_deposits WHERE payment_method_id = ? AND status = ?',
+      [id, 'approved']
+    );
+
+    if (approvedDeposits[0].count > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cette méthode de paiement ne peut pas être supprimée car elle a été utilisée pour des dépôts approuvés'
       });
     }
 
     // Désactiver la méthode de paiement au lieu de la supprimer
     await pool.query('UPDATE payment_methods SET is_active = FALSE WHERE id = ?', [id]);
     
-    res.json({ success: true });
+    res.json({ success: true, message: 'Méthode de paiement désactivée avec succès' });
   } catch (error) {
+    console.error('Erreur lors de la suppression de la méthode de paiement:', error);
     res.status(500).json({ success: false, message: 'Erreur suppression banque', error: error.message });
   }
 };
