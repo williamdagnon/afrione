@@ -66,7 +66,19 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
 
   return (
     <motion.div initial={{opacity:0}} animate={{opacity:1}} className="font-serif min-h-screen flex flex-col bg-white">
-      <div className="p-4 max-w-lg mx-auto w-full">
+      <div className="p-4 max-w-lg mx-auto w-full flex items-center">
+        <button
+          onClick={() => onNavigate('home')}
+          className="mr-2 p-2 rounded-full hover:bg-yellow-800/30 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          aria-label="Retour à l'accueil"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h1 className="text-lg font-semibold flex-1 text-center md:text-left text-gray-800">Recharger</h1>
+        <span className="w-8" />
+      </div>
         {/* Stepper */}
         <div className="flex justify-between items-center mb-6">
           <div className={`${step==='select' ? 'font-bold text-yellow-700' : 'text-gray-400'}`}>1. Choisir la banque</div>
@@ -128,7 +140,7 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
             </form>
           </motion.div>
         )}
-      </div>
+      
     </motion.div>
   );
 };
