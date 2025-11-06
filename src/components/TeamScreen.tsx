@@ -43,7 +43,17 @@ const TeamScreen: React.FC<TeamScreenProps> = ({ onNavigate, referralInfos, load
     <div className="min-h-screen font-serif flex flex-col bg-gradient-to-br from-yellow-800 to-yellow-600">
       {/* Header */}
       <div className="flex justify-between items-center p-4 text-white">
-        <h1 className="text-lg font-semibold">Mon équipe & Parrainage</h1>
+          <button
+            onClick={() => onNavigate('home')}
+            className="mr-2 p-2 rounded-full hover:bg-yellow-800/30 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            aria-label="Retour à l'accueil"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-lg font-semibold flex-1 text-center md:text-left">Mon équipe & Parrainage</h1>
+          <span className="w-8" />
       </div>
       {/* Invitation Section */}
       <div className="px-4 mb-6">
@@ -85,20 +95,22 @@ const TeamScreen: React.FC<TeamScreenProps> = ({ onNavigate, referralInfos, load
         ) : (
           <div className="space-y-6">
             {[1,2,3].map(lvl => {
-              const levelData = teamLevels.find((level:any)=>level.level===lvl||String(level.level)===String(lvl));
+              const levelData = teamLevels.find((level:any)=>level.level===lvl||String(level.level)===String(lvl)) || {};
+              // Correction : garantir que levelData.users est toujours un tableau
+              const users = Array.isArray(levelData.users) ? levelData.users : [];
               return (
                 <div key={lvl} className="bg-gray-50 rounded-lg p-4 shadow-md">
                   <h3 className="font-semibold text-yellow-700 mb-3">Niveau {lvl}</h3>
                   <div className="flex items-center gap-3 text-xs">
                     <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Commission {levelData?.commission||'-'}%</span>
-                    <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded">Membres {levelData?.users?.length||0}</span>
+                    <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded">Membres {users.length}</span>
                   </div>
                   <div className="mt-4">
-                  {!levelData||!levelData.users||levelData.users.length===0 ? (
+                  {users.length===0 ? (
                     <div className="text-gray-400 italic">Aucun filleul à ce niveau.</div>
                   ) : (
                     <ul className="space-y-1">
-                      {levelData.users.map((user:any, i:number) => (
+                      {users.map((user:any, i:number) => (
                         <li key={user.id || i} className="border-b py-1 flex items-center gap-2 text-gray-800">
                           <Users className="w-4 h-4 text-yellow-500"/>
                           <span className="font-semibold">{user.display_name||user.name||user.phone}</span>
