@@ -89,42 +89,9 @@ const TeamScreen: React.FC<TeamScreenProps> = ({ onNavigate, referralInfos, load
             <p className="text-xs text-gray-600">Total commissions</p>
           </div>
         </div>
-        {/* Niveaux */}
-        {loadingReferral ? (
-          <div className="text-center py-12 text-gray-500 animate-pulse">Chargement membres de l’équipe...</div>
-        ) : (
-          <div className="space-y-6">
-            {[1,2,3].map(lvl => {
-              const levelData = teamLevels.find((level:any)=>level.level===lvl||String(level.level)===String(lvl)) || {};
-              // Correction : garantir que levelData.users est toujours un tableau
-              const users = Array.isArray(levelData.users) ? levelData.users : [];
-              return (
-                <div key={lvl} className="bg-gray-50 rounded-lg p-4 shadow-md">
-                  <h3 className="font-semibold text-yellow-700 mb-3">Niveau {lvl}</h3>
-                  <div className="flex items-center gap-3 text-xs">
-                    <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Commission {levelData?.commission||'-'}%</span>
-                    <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded">Membres {users.length}</span>
-                  </div>
-                  <div className="mt-4">
-                  {users.length===0 ? (
-                    <div className="text-gray-400 italic">Aucun filleul à ce niveau.</div>
-                  ) : (
-                    <ul className="space-y-1">
-                      {users.map((user:any, i:number) => (
-                        <li key={user.id || i} className="border-b py-1 flex items-center gap-2 text-gray-800">
-                          <Users className="w-4 h-4 text-yellow-500"/>
-                          <span className="font-semibold">{user.display_name||user.name||user.phone}</span>
-                          <span className="text-gray-500 text-xs">{user.phone}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+      
+        
+          
         {/* Info commission */}
         <div className="mt-8 bg-yellow-50 rounded-lg p-4 text-sm text-gray-700 space-y-2">
           <p><strong>LV1 :</strong> 25% sur les achats directs.</p>
