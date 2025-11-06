@@ -112,22 +112,53 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, duration, duration_days, daily_revenue, total_revenue, image, description, is_active } = req.body;
+    const updates = req.body;
 
-    const [result] = await pool.query(
-      `UPDATE products 
-       SET name = ?, price = ?, duration = ?, duration_days = ?, 
-           daily_revenue = ?, total_revenue = ?, image = ?, description = ?, is_active = ?
-       WHERE id = ?`,
-      [name, price, duration, duration_days, daily_revenue, total_revenue, image, description, is_active, id]
+    // Vérifier si le produit existe
+    const [existingProduct] = await pool.query(
+      'SELECT * FROM products WHERE id = ?',
+      [id]
     );
 
-    if (result.affectedRows === 0) {
+    if (existingProduct.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Produit non trouvé'
       });
     }
+
+    // Construire la requête de mise à jour dynamiquement
+    const updateFields = [];
+    const values = [];
+    
+    const allowedFields = [
+      'name', 'price', 'duration', 'duration_days', 
+      'daily_revenue', 'total_revenue', 'image', 
+      'description', 'is_active'
+    ];
+
+    allowedFields.forEach(field => {
+      if (updates[field] !== undefined) {
+        updateFields.push(`${field} = ?`);
+        values.push(updates[field]);
+      }
+    });
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Aucun champ à mettre à jour'
+      });
+    }
+
+    // Ajouter l'ID à la fin des valeurs
+    values.push(id);
+
+    // Exécuter la mise à jour
+    await pool.query(
+      `UPDATE products SET ${updateFields.join(', ')} WHERE id = ?`,
+      values
+    );
 
     // Récupérer le produit mis à jour
     const [products] = await pool.query(
