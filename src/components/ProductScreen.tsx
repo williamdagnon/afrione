@@ -73,8 +73,18 @@ const ProductScreen: React.FC<ProductScreenProps> = ({ onNavigate, userBalance, 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen font-serif flex flex-col bg-white">
       {/* Header */}
-      <div className="bg-white p-4 text-center border-b">
-        <h1 className="text-lg font-semibold text-gray-800">Centre de Produits</h1>
+      <div className="bg-white p-4 flex items-center border-b">
+        <button
+          onClick={() => onNavigate('home')}
+          className="mr-2 p-2 rounded-full hover:bg-yellow-800/30 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          aria-label="Retour à l'accueil"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h1 className="text-lg font-semibold flex-1 text-center md:text-left text-gray-800">Centre de Produits</h1>
+        <span className="w-8" />
       </div>
 
       {/* Balance Section */}
