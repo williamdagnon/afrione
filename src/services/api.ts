@@ -591,12 +591,20 @@ class ApiClient {
     });
   }
 
+  // Mettre à jour une méthode de paiement (admin)
+  async updatePaymentMethod(id: number, data: Partial<PaymentMethod>): Promise<ApiResponse<PaymentMethod>> {
+    return this.request<PaymentMethod>(`/payment-methods/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
   // Supprimer une méthode de paiement (admin)
-async deletePaymentMethod(id: number): Promise<ApiResponse<any>> {
-  return this.request<any>(`/payment-methods/${id}`, {
-    method: 'DELETE'
-  });
-}
+  async deletePaymentMethod(id: number): Promise<ApiResponse<any>> {
+    return this.request<any>(`/payment-methods/${id}`, {
+      method: 'DELETE'
+    });
+  }
 
   async createManualDeposit(payload: { 
     payment_method_id: number;
