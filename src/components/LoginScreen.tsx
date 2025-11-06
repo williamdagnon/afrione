@@ -100,7 +100,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoToRegister, defa
                   aria-label="Numéro de téléphone sans code pays"
                 />
               </div>
-              <div className="text-xs text-gray-400 mt-1 pl-2">Format accepté : +225XXXXXXXX ou 07XXXXXXXX | Pays autorisés : Côte d’Ivoire, Togo, Burkina, Cameroun, Bénin</div>
+              {/* <div className="text-xs text-gray-400 mt-1 pl-2">Format accepté : +225XXXXXXXX ou 07XXXXXXXX | Pays autorisés : Côte d’Ivoire, Togo, Burkina, Cameroun, Bénin</div> */}
             </div>
 
             {/* Password Input */}
