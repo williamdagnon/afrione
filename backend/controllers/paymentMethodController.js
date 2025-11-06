@@ -34,7 +34,20 @@ export const updatePaymentMethod = async (req, res) => {
 export const deletePaymentMethod = async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM payment_methods WHERE id=?', [id]);
+    
+    // Vérifier si la méthode de paiement est utilisée dans des dépôts
+    const [deposits] = await pool.query('SELECT COUNT(*) as count FROM manual_deposits WHERE payment_method_id = ?', [id]);
+    
+    if (deposits[0].count > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cette méthode de paiement ne peut pas être supprimée car elle est utilisée dans des dépôts'
+      });
+    }
+
+    // Désactiver la méthode de paiement au lieu de la supprimer
+    await pool.query('UPDATE payment_methods SET is_active = FALSE WHERE id = ?', [id]);
+    
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erreur suppression banque', error: error.message });
