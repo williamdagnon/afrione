@@ -56,7 +56,7 @@ const CheckInScreen: React.FC<CheckInScreenProps> = ({ onNavigate, userBalance, 
         <div className="flex items-center">
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
             <span className="text-white font-bold text-sm">
-              <img src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" alt="afrione" className='h-full w-full rounded-2xl'/>
+              <img src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" alt="afrione" className='h-full w-full rounded-2xl'/>
             </span>
           </div>
           <span className="text-yellow-500 font-semibold">AFRIONE</span>
@@ -71,7 +71,7 @@ const CheckInScreen: React.FC<CheckInScreenProps> = ({ onNavigate, userBalance, 
         <div className="bg-yellow-500 text-white p-6 rounded-b-lg mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <img src="https://images.pexels.com/photos/8721342/pexels-photo-8721342.jpeg?auto=compress&cs=tinysrgb&w=200" alt="VR Gaming" className="w-20 h-16 object-cover rounded-lg mb-2"/>
+              <img src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" alt="VR Gaming" className="w-20 h-16 object-cover rounded-lg mb-2"/>
               <h3 className="font-bold text-lg">Récompense quotidienne</h3>
               <p className="text-sm opacity-90">Obtenez des récompenses chaque jour</p>
             </div>
@@ -88,7 +88,7 @@ const CheckInScreen: React.FC<CheckInScreenProps> = ({ onNavigate, userBalance, 
               <p className="text-2xl font-bold mt-2">{days} Jours</p>
             </div>
             <div>
-              <img src="https://images.pexels.com/photos/8721318/pexels-photo-8721318.jpeg?auto=compress&cs=tinysrgb&w=150" alt="VR Setup" className="w-20 h-16 object-cover rounded-lg"/>
+              <img src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" alt="VR Setup" className="w-20 h-16 object-cover rounded-lg"/>
             </div>
           </div>
         </div>
