@@ -28,7 +28,7 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const quickAmounts = [3000, 6000, 8000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 80000, 100000, 150000, 200000];
+  const quickAmounts = [3000,5000, 6000, 8000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 80000, 100000, 150000, 200000, 500000, 1000000];
   const handleBankSelect = (bank: any) => {
     if(!form.amount){
       toast.error('Veuillez d\'abord saisir ou choisir un montant.');
@@ -93,6 +93,8 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
         {/* Banques - Étape 1 */}
         {isLoadingBanks ? <div className="text-center p-8">Chargement banques ...</div> : step==='select' && (
           <>
+            <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="Montant (FCFA)" className="w-full px-4 py-2 border border-blue-700 rounded" min={1}/>
+
             {/* Choix Montant d'abord */}
             <div className="mb-5">
               <p className="text-sm text-gray-700 mb-2">Montant à déposer (FCFA)</p>
@@ -102,7 +104,6 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
                     className={`py-2 rounded border ${form.amount==String(v)?'bg-yellow-500 text-white border-yellow-500':'bg-white text-gray-700 border-gray-200'} hover:border-yellow-400`}>{v.toLocaleString()}</button>
                 ))}
           </div>
-              <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="Autre montant (FCFA)" className="w-full px-4 py-2 border rounded" min={1}/>
         </div>
             {/* Banques */}
             <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-3">
