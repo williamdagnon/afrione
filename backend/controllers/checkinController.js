@@ -40,8 +40,11 @@ export const doCheckin = async (req, res) => {
 
     // Calculer les jours consécutifs
     let consecutiveDays = 1;
-    if (lastCheckin && lastCheckin.toISOString().split('T')[0] === yesterdayStr) {
-      consecutiveDays = user[0].consecutive_checkins + 1;
+    if (lastCheckin) {
+      const lastCheckinStr = new Date(lastCheckin).toISOString().split('T')[0];
+      if (lastCheckinStr === yesterdayStr) {
+        consecutiveDays = user[0].consecutive_checkins + 1;
+      }
     }
 
     // Récupérer le bonus
