@@ -34,17 +34,20 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ onClose }) => {
         {/* Content */}
   <div className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-4">
           <p className="mb-3">
-            Nous sommes passionnés par les jeux, la technologie et la création du futur investissement technologique. 
-            Depuis sa création, notre ambition est claire : rendre la technologie mobile accessible à tous, tout en offrant des produits fiables, performants et élégants.
+            Bienvenue dans votre espace personnel AFRIONE ! 
+            Découvrez nos dernières nouveautés et opportunités exclusives.
           </p>
           
           <div className="space-y-2">
-            <p><span className="font-medium">1.</span> Bonus d'inscription : 300 FCFA.</p>
-            <p><span className="font-medium">2.</span> Bonus de connexion quotidien : 50 FCFA.</p>
-            <p><span className="font-medium">3.</span> Invitez vos amis, familles et alliés à investir et recevez un bonus en espèces allant jusqu'à 30 % de leur investissement.</p>
-            <p><span className="font-medium">4.</span> Les retraits sont illimités et peuvent être effectués plusieurs fois à tout moment.</p>
-            <p><span className="font-medium">5.</span> AFRIONE sera lancé en Côte d'Ivoire, au Burkina Faso, au Cameroun, au Togo et au Bénin le 03 Novembre.</p>
-            <p><span className="font-medium">6.</span> Rejoignez notre groupe Telegram pour plus d'informations sur les gains.</p>
+            <p><span className="font-medium text-yellow-600">Rappel des avantages :</span></p>
+            <p> Bonus d'inscription de 300 FCFA</p>
+            <p> Gagnez un bonus quotidien de 50 FCFA en vous connectant chaque jour</p>
+            <p> Parrainez et gagnez jusqu'à 30% sur les investissements</p>
+            <p> Explorez nos nouveaux produits technologiques</p>
+            <p>Retraits illimités disponibles 24h/24</p>
+            <p className="mt-4 text-sm font-medium text-yellow-600">
+              N'oubliez pas de consulter le centre des tâches pour plus d'opportunités de gains !
+            </p>
           </div>
         </div>
 
