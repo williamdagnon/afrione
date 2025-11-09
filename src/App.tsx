@@ -203,6 +203,9 @@ function App() {
 
   const handleNavigate = (screen: ScreenType) => {
     setCurrentScreen(screen);
+    if (screen === 'home') {
+      setShowNotification(true);
+    }
   };
 
   const handlePurchaseProduct = async (productId: number) => {
