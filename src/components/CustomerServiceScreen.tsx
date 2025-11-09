@@ -19,7 +19,7 @@ const CustomerServiceScreen: React.FC<CustomerServiceScreenProps> = ({ onNavigat
         </button>
         <div className="flex items-center">
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-sm">F</span>
+            <img src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" alt="afrione" className="w-full h-full object-cover rounded-full" />
           </div>
           <span className="text-yellow-500 font-semibold">AFRIONE</span>
         </div>
@@ -41,9 +41,9 @@ const CustomerServiceScreen: React.FC<CustomerServiceScreenProps> = ({ onNavigat
           
           <div className="border-t border-gray-200 pt-6">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
+              <div className="w-12 h-12 bg-orange-300 rounded-full flex items-center justify-center mr-3">
                 {/* <span className="text-white font-bold text-sm">T</span> */}
-                <Send className="w-8 h-8 text-white text-center" />
+                <Send className="w-8 h-8 text-blue-500 text-center" />
               </div>
             
             </div>
