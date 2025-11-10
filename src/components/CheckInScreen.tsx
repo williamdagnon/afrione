@@ -41,7 +41,7 @@ const CheckInScreen: React.FC<CheckInScreenProps> = ({ onNavigate, userBalance, 
     setIsCheckingIn(true);
     const success = await onCheckIn();
     if (success) {
-      toast.success('Enregistrement réussi ! Bonus crédité.');
+      // On laisse le toast de App.tsx gérer la notification
       await fetchCheckinStatus();
     }
     setIsCheckingIn(false);
