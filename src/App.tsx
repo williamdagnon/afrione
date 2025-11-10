@@ -288,10 +288,11 @@ function App() {
         if (currentUser) {
           setCurrentUser({
             ...currentUser,
-            balance: response.data.new_balance
+            balance: response.data.new_balance || currentUser.balance
           });
         }
-        toast.success(`Check-in effectué ! +${response.data.reward_amount} FCFA (Série: ${response.data.streak} jours)`);
+        // On utilise les bonnes propriétés retournées par l'API
+        toast.success(`Check-in effectué ! +${response.data.reward || 50} FCFA (Série: ${response.data.consecutive_days || 1} jours)`);
         return true;
       } else {
         toast.error(response.message || 'Vous avez déjà effectué votre check-in aujourd\'hui');
