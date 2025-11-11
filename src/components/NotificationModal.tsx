@@ -34,7 +34,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ onClose }) => {
         {/* Content */}
   <div className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-4">
           <p className="mb-3">
-            Bienvenue dans votre espace personnel AFRIONE ! 
+            Bienvenue dans votre espace personnel REDMY ! 
             Découvrez nos dernières nouveautés et opportunités exclusives.
           </p>
           
