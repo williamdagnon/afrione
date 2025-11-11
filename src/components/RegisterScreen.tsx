@@ -63,10 +63,10 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegister, onGoToLogin
           <div className="w-20 h-20 bg-black rounded-full mx-auto mb-4 flex items-center justify-center">
             
               <img src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
-              alt="AFRIONE Logo" className='w-20 h-20 rounded-full' />
+              alt="REDMY Logo" className='w-20 h-20 rounded-full' />
             
           </div>
-          <h1 className="text-white text-2xl font-light">AFRIONE</h1>
+          <h1 className="text-white text-2xl font-light">REDMY</h1>
         </div>
         {/* Register Form */}
         <div className="bg-white rounded-2xl p-6 shadow-xl">
