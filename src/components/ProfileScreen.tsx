@@ -130,7 +130,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <img 
-              src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" 
+              src="https://i.postimg.cc/HnYCqmQZ/photo-5807811900899789801-y.jpg" 
               alt="AFRIONE"
               className="w-16 h-12 object-cover rounded-lg mr-4"
             />
