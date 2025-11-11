@@ -78,7 +78,7 @@ const RulesScreen: React.FC<RulesScreenProps> = ({ onNavigate }) => {
 
         <p className="mb-4">
           En invitant un ami à s'inscrire et à investir, vous recevez instantanément un 
-          bonus de 30 % de son investissement.
+          bonus de 25% de son investissement.
         </p>
 
         <p className="mb-4">
