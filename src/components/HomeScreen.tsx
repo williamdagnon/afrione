@@ -13,19 +13,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
   const games = [
     {
       title: 'AETHER',
-      image: 'https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg'
+      image: 'https://i.postimg.cc/5ysM1rg4/photo-5807811900899789800-y.jpg'
     },
     {
       title: 'CAELUM',
-      image: 'https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg'
+      image: 'https://i.postimg.cc/HnYCqmQZ/photo-5807811900899789801-y.jpg'
     },
     {
       title: 'UNIVERSUM',
-      image: 'https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg'
+      image: 'https://i.postimg.cc/5ysM1rg4/photo-5807811900899789800-y.jpg'
     },
     {
       title: 'SPATIUM',
-      image: 'https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg'
+      image: 'https://i.postimg.cc/HnYCqmQZ/photo-5807811900899789801-y.jpg'
     }
   ];
 
@@ -36,8 +36,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
         <div className="text-center text-white z-10">
           <div className="mb-4">
             <motion.img 
-              src="https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg" 
-              alt="AFRIONE" 
+              src="https://i.postimg.cc/2y0fmtGm/photo-5807811900899789799-y.jpg" 
+              alt="Redmy" 
               className="w-9/12 h-64 object-cover rounded-lg mx-auto"
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
@@ -62,7 +62,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
             <motion.div className="text-center" whileHover={{ y: -3 }} transition={{ type: 'spring', stiffness: 200 }}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <img 
-                src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" 
+                src="https://i.postimg.cc/5ysM1rg4/photo-5807811900899789800-y.jpg" 
                 alt="VR Headset" 
                 className="w-full h-16 object-cover rounded"
               />
@@ -73,7 +73,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
           <motion.div className="text-center" whileHover={{ y: -3 }} transition={{ type: 'spring', stiffness: 200 }}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <img 
-                src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" 
+                src="https://i.postimg.cc/5ysM1rg4/photo-5807811900899789800-y.jpg" 
                 alt="VR Headset" 
                 className="w-full h-16 object-cover rounded"
               />
@@ -84,7 +84,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
           <motion.div className="text-center" whileHover={{ y: -3 }} transition={{ type: 'spring', stiffness: 200 }}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <img 
-                src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" 
+                src="https://i.postimg.cc/5ysM1rg4/photo-5807811900899789800-y.jpg" 
                 alt="VR Controllers" 
                 className="w-full h-16 object-cover rounded"
               />
@@ -97,7 +97,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userBalance }) => {
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="text-center" onClick={() => onNavigate('recharge')}>
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
-              <img src="https://i.postimg.cc/RVDD0T64/deposit-4.png" alt="AFRIONE" className="w-12 h-12 mx-auto text-gray-600" onClick={() => onNavigate('recharge')} />
+              <img src="https://i.postimg.cc/RVDD0T64/deposit-4.png" alt="Redmy" className="w-12 h-12 mx-auto text-gray-600" onClick={() => onNavigate('recharge')} />
             </div>
             <button 
               onClick={() => onNavigate('recharge')}
