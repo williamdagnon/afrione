@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Bell } from 'lucide-react';
+import { X, Bell, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NotificationModalProps {
@@ -56,7 +56,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ onClose }) => {
           <motion.button whileTap={{ scale: 0.98 }} className="flex items-center text-blue-500 text-xs sm:text-sm hover:underline px-2 py-2 sm:py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" 
             onClick={() => window.open('https://t.me/+Px8RNkpxMmc3NzI0', '_blank')}>
             <div className="w-7 h-7 sm:w-6 sm:h-6 bg-blue-500 rounded-full mr-2 flex items-center justify-center">
-              <span className="text-white text-xs">T</span>
+              <Send className="w-8 h-8 text-blue-500 text-center" />
             </div>
             <span className="hidden xs:inline">Cliquez pour accéder au canal Telegram officiel &gt;</span>
             <span className="inline xs:hidden">Canal Telegram &gt;</span>
