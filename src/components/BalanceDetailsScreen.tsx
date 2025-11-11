@@ -45,8 +45,8 @@ const BalanceDetailsScreen: React.FC<BalanceDetailsScreenProps> = ({ onNavigate 
       <div className="flex items-center p-4 border-b border-gray-200">
         <button onClick={() => onNavigate('profile')} className="mr-4"><ArrowLeft className="w-6 h-6 text-gray-600" /></button>
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3"><span className="text-white font-bold text-sm">A</span></div>
-          <span className="text-yellow-500 font-semibold">AFRIONE</span>
+          <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3"><span className="text-white font-bold text-sm">R</span></div>
+          <span className="text-yellow-500 font-semibold">REDMY</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">Détails du solde</span>
       </div>
