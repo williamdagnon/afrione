@@ -54,7 +54,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ onClose }) => {
         {/* Telegram Link */}
         <div className="flex items-center justify-center mt-2">
           <motion.button whileTap={{ scale: 0.98 }} className="flex items-center text-blue-500 text-xs sm:text-sm hover:underline px-2 py-2 sm:py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" 
-            onClick={() => window.open('https://t.me/+Px8RNkpxMmc3NzI0', '_blank')}>
+            onClick={() => window.open('https://t.me/+6aLYjjz0Pfw1MjU0', '_blank')}>
             <div className="w-7 h-7 sm:w-6 sm:h-6 bg-white rounded-full mr-2 flex items-center justify-center">
               <Send className="w-8 h-8 text-blue-500 text-center" />
             </div>
