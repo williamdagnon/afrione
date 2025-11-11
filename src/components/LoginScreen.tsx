@@ -62,7 +62,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoToRegister, defa
               alt="AFRIONE Logo" className='w-20 h-20 rounded-full' />
             
           </div>
-          <h1 className="text-white text-2xl font-light">AFRIONE</h1>
+          <h1 className="text-white text-2xl font-light">REDMY</h1>
         </div>
 
         {/* Login Form */}
