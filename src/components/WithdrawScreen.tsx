@@ -111,8 +111,8 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ onNavigate, userBalance
             <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
               <span className="text-yellow-600 font-bold text-sm">
                 <img 
-                src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
-                alt="afrione"
+                src="https://i.postimg.cc/RFQBphny/photo-5807811900899789803-y.jpg" 
+                alt="REDMY"
                 className='h-full w-full rounded-2xl' 
                 />
               </span>
