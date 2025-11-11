@@ -59,7 +59,7 @@ const CheckInScreen: React.FC<CheckInScreenProps> = ({ onNavigate, userBalance, 
               <img src="https://i.postimg.cc/x1q7GZ8s/photo-5767022527770201183-y.jpg" alt="afrione" className='h-full w-full rounded-2xl'/>
             </span>
           </div>
-          <span className="text-yellow-500 font-semibold">AFRIONE</span>
+          <span className="text-yellow-500 font-semibold">REDMY</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">Enregistrement</span>
       </div>
