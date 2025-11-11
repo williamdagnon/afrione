@@ -16,6 +16,8 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
   const [isLoadingBanks, setIsLoadingBanks] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'select'|'submit'>('select');
+  const [showLoader, setShowLoader] = useState(false);
+  const [preSubmitLoader, setPreSubmitLoader] = useState(false);
 
   useEffect(() => { loadBanks(); }, []);
   const loadBanks = async () => {
@@ -28,14 +30,24 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const quickAmounts = [3000,5000, 6000, 8000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 80000, 100000, 150000, 200000, 500000, 1000000];
+  const quickAmounts = [3000, 6000, 8000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 80000, 100000, 150000, 200000];
   const handleBankSelect = (bank: any) => {
     if(!form.amount){
       toast.error('Veuillez d\'abord saisir ou choisir un montant.');
       return;
     }
-    setSelectedBank(bank);
-    setStep('submit');
+    setPreSubmitLoader(true);
+    setTimeout(() => {
+      setSelectedBank(bank);
+      setStep('submit');
+      setPreSubmitLoader(false);
+    }, 5000);
+  };
+
+  // Fonction pour copier le RIB
+  const handleCopyRIB = (rib: string) => {
+    navigator.clipboard.writeText(rib);
+    toast.success('Numéro de dépôt copié !');
   };
   const goBack = ()=>{ setStep('select'); setSelectedBank(null); };
 
@@ -45,23 +57,28 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
     e.preventDefault();
     if(!canSubmit) return;
     setIsSubmitting(true);
-    try {
-      const resp = await api.createManualDeposit({
-        payment_method_id: selectedBank.id,
-        amount: parseFloat(form.amount),
-        deposit_number: form.deposit_number,
-        transaction_id: form.transaction_id
-      });
-      if(resp.success) {
-        toast.success('Dépôt soumis, en attente de validation admin.');
-        onNavigate('home');
-      } else {
-        toast.error(resp.message || 'Erreur dépôt.');
+    setShowLoader(true);
+    // Loader de 5 secondes avant la soumission réelle
+    setTimeout(async () => {
+      try {
+        const resp = await api.createManualDeposit({
+          payment_method_id: selectedBank.id,
+          amount: parseFloat(form.amount),
+          deposit_number: form.deposit_number,
+          transaction_id: form.transaction_id
+        });
+        if(resp.success) {
+          toast.success('Dépôt soumis, en attente de validation admin.');
+          onNavigate('home');
+        } else {
+          toast.error(resp.message || 'Erreur dépôt.');
+        }
+      } catch(e: any) {
+        toast.error(e.message || 'Erreur dépôt');
       }
-    } catch(e: any) {
-      toast.error(e.message || 'Erreur dépôt');
-    }
-    setIsSubmitting(false);
+      setIsSubmitting(false);
+      setTimeout(() => setShowLoader(false), 5000);
+    }, 5000);
   };
 
   return (
@@ -108,19 +125,33 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
             {/* Banques */}
             <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-3">
               {paymentMethods.map(bank => (
-                <motion.button
-                  type="button"
-                  whileHover={{ scale:1.02 }}
-                key={bank.id}
+                <motion.div
+                  key={bank.id}
                   className={`w-full text-left rounded-lg border p-4 shadow ${selectedBank?.id===bank.id?'border-yellow-400 bg-yellow-50':'border-gray-200 bg-white'} transition`}
-                  onClick={()=>handleBankSelect(bank)}
+                  whileHover={{ scale:1.02 }}
                 >
                   <span className="block text-lg font-semibold">{bank.bank_name}</span>
                   <span className="block text-yellow-800">Titulaire: <span className="font-medium">{bank.account_holder}</span></span>
-                  <span className="block text-gray-500 text-sm">RIB: {bank.account_number}</span>
-                </motion.button>
-            ))}
-          </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="block text-gray-500 text-sm">RIB: {bank.account_number}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyRIB(bank.account_number)}
+                      className="ml-2 px-2 py-1 text-xs bg-yellow-400 text-white rounded hover:bg-yellow-500 focus:outline-none"
+                    >
+                      Copier
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className="mt-2 w-full py-2 rounded bg-yellow-500 text-white font-medium hover:bg-yellow-600"
+                    onClick={()=>handleBankSelect(bank)}
+                  >
+                    Choisir cette banque
+                  </button>
+                </motion.div>
+              ))}
+            </div>
           </>
         )}
         {/* Formulaire - Étape 2 */}
@@ -142,6 +173,36 @@ const RechargeScreen: React.FC<RechargeScreenProps> = ({ onNavigate }) => {
           </motion.div>
         )}
       
+    {/* Loader avant le formulaire de soumission */}
+    {preSubmitLoader && (
+      <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+        <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} className="bg-white rounded-xl p-8 shadow-xl flex flex-col items-center">
+          <div className="animate-spin mb-4">
+            <svg className="w-12 h-12 text-yellow-500" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+          </div>
+          <p className="text-lg font-semibold text-yellow-700 mb-2">Chargement...</p>
+          <p className="text-gray-600 text-sm">Merci de patienter!</p>
+        </motion.div>
+      </div>
+    )}
+    {/* Loader d'automatisation après soumission */}
+    {showLoader && (
+      <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+        <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} className="bg-white rounded-xl p-8 shadow-xl flex flex-col items-center">
+          <div className="animate-spin mb-4">
+            <svg className="w-12 h-12 text-yellow-500" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+          </div>
+          <p className="text-lg font-semibold text-yellow-700 mb-2">Chargement...</p>
+          <p className="text-gray-600 text-sm">Votre dépôt est en cours de traitement.<br/>Merci de patienter!</p>
+        </motion.div>
+      </div>
+    )}
     </motion.div>
   );
 };
