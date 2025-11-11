@@ -21,7 +21,7 @@ const CustomerServiceScreen: React.FC<CustomerServiceScreenProps> = ({ onNavigat
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
             <img src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" alt="afrione" className="w-full h-full object-cover rounded-full" />
           </div>
-          <span className="text-yellow-500 font-semibold">AFRIONE</span>
+          <span className="text-yellow-500 font-semibold">REDMY</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">Service Client</span>
       </div>
