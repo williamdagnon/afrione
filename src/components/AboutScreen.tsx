@@ -22,12 +22,12 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ onNavigate }) => {
             <span className="text-white font-bold text-sm">
               <img 
                 src="https://i.postimg.cc/YS4QxJ5x/photo-5764898979974941903-y.jpg" 
-                alt="afrione"
+                alt="REDMY"
                 className='h-full w-full rounded-2xl' 
                 />
             </span>
           </div>
-          <span className="text-yellow-500 font-semibold">AFRIONE</span>
+          <span className="text-yellow-500 font-semibold">REDMY</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">À propos de nous</span>
       </div>
@@ -35,7 +35,7 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ onNavigate }) => {
       {/* Content */}
       <div className="p-6 text-gray-700 leading-relaxed">
         <p className="mb-4">
-          AFRIONE est une entreprise technologique africaine spécialisée dans la vente et 
+          REDMY est une entreprise technologique africaine spécialisée dans la vente et 
           la distribution de téléphones portables de nouvelle génération. 
           Depuis sa création, notre ambition est claire : 
           rendre la technologie mobile accessible à tous, tout en offrant des produits fiables, 
@@ -45,7 +45,7 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ onNavigate }) => {
         <p className="mb-4">
           Nous croyons profondément au potentiel du continent africain et à sa capacité à se hisser au rang 
           des leaders mondiaux du numérique.
-           C’est pourquoi AFRIONE s’engage à proposer des smartphones adaptés aux besoins et réalités 
+           C’est pourquoi REDMY s’engage à proposer des smartphones adaptés aux besoins et réalités 
            locales : une autonomie prolongée, une grande robustesse, une connectivité stable et des 
            fonctionnalités modernes.
         </p>
@@ -57,10 +57,10 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ onNavigate }) => {
           notre démarche, car pour nous, un client satisfait est notre meilleure publicité.
         </p>
 
-        <h3 className="font-semibold text-gray-800 mb-2">Pourquoi AFRIONE ?</h3>
+        <h3 className="font-semibold text-gray-800 mb-2">Pourquoi REDMY ?</h3>
 
         <p className="mb-4">
-          Notre vision est de faire d’AFRIONE la référence africaine en matière de technologie mobile, 
+          Notre vision est de faire de REDMY la référence africaine en matière de technologie mobile, 
           en accompagnant la digitalisation de notre continent et en inspirant une 
           nouvelle génération d’utilisateurs connectés et ambitieux.
         </p>
