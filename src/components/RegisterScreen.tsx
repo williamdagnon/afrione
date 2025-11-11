@@ -55,7 +55,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegister, onGoToLogin
 
   return (
     <div className=" font-serif  flex items-center justify-center min-h-screen p-4" 
-    style={{backgroundImage: 'url(https://i.postimg.cc/CxdtC25m/photo-5767022527770201182-y.jpg)', 
+    style={{backgroundImage: 'url(https://i.postimg.cc/2y0fmtGm/photo-5807811900899789799-y.jpg)', 
     backgroundSize: 'cover', backgroundPosition: 'center'}}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="w-full max-w-sm">
         {/* Logo */}
