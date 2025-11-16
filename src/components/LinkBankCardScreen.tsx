@@ -83,9 +83,9 @@ const LinkBankCardScreen: React.FC<LinkBankCardScreenProps> = ({ onNavigate }) =
         </button>
         <div className="flex items-center">
           <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-sm">A</span>
+            <span className="text-white font-bold text-sm">R</span>
           </div>
-          <span className="text-yellow-500 font-semibold">AFRIONE</span>
+          <span className="text-yellow-500 font-semibold">REDMY</span>
         </div>
         <span className="ml-4 text-yellow-500 font-medium">Lier une carte bancaire</span>
       </div>
