@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
+import { CheckCircle, XCircle, Clock } from "lucide-react";
 import api from "../../services/api";
 import { ScreenType } from "../../App";
 
@@ -57,17 +58,35 @@ const ManualDepositManagement: React.FC<ManualDepositManagementProps> = ({ onNav
         <div className="p-4 space-y-4">
           {deposits.length === 0 ? <div>Aucun dépôt.</div> : (
             deposits.map(dep => (
-              <motion.div key={dep.id} className="bg-gray-50 rounded-xl shadow p-6">
-                <div className="font-semibold text-yellow-700 mb-2">Statut : {dep.status}</div>
-                <div><b>User:</b> {dep.user_name} <span className="text-gray-400">({dep.phone})</span></div>
-                <div className="text-sm text-gray-500">Envoyé le {new Date(dep.created_at).toLocaleString('fr')}</div>
-                <div className="flex flex-wrap gap-3 mt-2">
-                  <div><b>Banque :</b> {dep.bank_name}</div>
-                  <div><b>Titulaire :</b> {dep.account_holder}</div>
-                  <div><b>RIB :</b> {dep.account_number}</div>
-                  <div><b>Montant :</b> <span className="text-green-700 font-bold">{dep.amount.toLocaleString()} FCFA</span></div>
-                  <div><b>N° Dépôt:</b> {dep.deposit_number}</div>
-                  <div><b>ID Tx:</b> {dep.transaction_id}</div>
+              <motion.div key={dep.id} className="bg-gray-50 rounded-xl shadow p-6 border-l-4 border-yellow-400">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-yellow-700">Statut : {dep.status}</h3>
+                    {dep.status === 'completed' && <CheckCircle className="w-5 h-5 text-blue-500" />}
+                    {dep.status === 'rejected' && <XCircle className="w-5 h-5 text-red-500" />}
+                    {dep.status === 'pending' && <Clock className="w-5 h-5 text-orange-500" />}
+                    {dep.status === 'approved' && <CheckCircle className="w-5 h-5 text-blue-500" />}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div><b>Utilisateur:</b> {dep.user_name} <span className="text-gray-400 text-sm">({dep.phone})</span></div>
+                  <div className="text-sm text-gray-500">Envoyé le {new Date(dep.created_at).toLocaleString('fr')}</div>
+                </div>
+                <div className="bg-blue-50 rounded p-3 mb-3 border border-blue-200">
+                  <p className="font-semibold text-blue-900 mb-2">💳 Méthode de paiement :</p>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><b>Banque :</b> {dep.bank_name}</div>
+                    <div><b>Titulaire :</b> {dep.account_holder}</div>
+                    <div><b>RIB :</b> {dep.account_number}</div>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded p-3 mb-3 border border-green-200">
+                  <p className="font-semibold text-green-900 mb-2">💰 Dépôt effectué :</p>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><b>Montant :</b> <span className="text-green-700 font-bold">{dep.amount.toLocaleString()} FCFA</span></div>
+                    <div><b>N° Dépôt:</b> {dep.deposit_number}</div>
+                    <div><b>ID Transaction:</b> {dep.transaction_id}</div>
+                  </div>
                 </div>
                 {dep.admin_note && <div className="mt-2 text-red-700">Note admin: {dep.admin_note}</div>}
                 {dep.status === "pending" && (
