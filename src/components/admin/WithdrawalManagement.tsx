@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
 import api from '../../services/api';
 import { ScreenType } from '../../App';
 import { motion } from 'framer-motion';
@@ -142,17 +142,22 @@ const WithdrawalManagement: React.FC<WithdrawalManagementProps> = ({ onNavigate 
             >
               {/* User Info */}
               <div className="flex items-center justify-between mb-3">
-                <div>
+                <div className="flex-1">
                   <p className="font-semibold text-gray-800">{withdrawal.display_name}</p>
                   <p className="text-sm text-gray-500">{withdrawal.phone}</p>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  withdrawal.status === 'pending' ? 'bg-orange-100 text-orange-600' :
-                  (withdrawal.status === 'approved' || withdrawal.status === 'completed') ? 'bg-green-100 text-green-600' :
-                  'bg-red-100 text-red-600'
-                }`}>
-                  {withdrawal.status === 'pending' ? 'En attente' :
-                   (withdrawal.status === 'approved' || withdrawal.status === 'completed') ? 'Approuvé' : 'Rejeté'}
+                <div className="flex items-center gap-2">
+                  {withdrawal.status === 'pending' && <Clock className="w-5 h-5 text-orange-500" />}
+                  {(withdrawal.status === 'approved' || withdrawal.status === 'completed') && <CheckCircle className="w-5 h-5 text-blue-500" />}
+                  {withdrawal.status === 'rejected' && <XCircle className="w-5 h-5 text-red-500" />}
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    withdrawal.status === 'pending' ? 'bg-orange-100 text-orange-600' :
+                    (withdrawal.status === 'approved' || withdrawal.status === 'completed') ? 'bg-green-100 text-green-600' :
+                    'bg-red-100 text-red-600'
+                  }`}>
+                    {withdrawal.status === 'pending' ? 'En attente' :
+                     (withdrawal.status === 'approved' || withdrawal.status === 'completed') ? 'Approuvé' : 'Rejeté'}
+                  </div>
                 </div>
               </div>
 
