@@ -358,6 +358,16 @@ class ApiClient {
     return this.request<WithdrawalRequest[]>('/withdrawals/my');
   }
 
+  // Récupérer mes retraits (alias pour getWithdrawalRequests)
+  async getMyWithdrawals(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/withdrawals');
+  }
+
+  // Récupérer mes dépôts manuels
+  async getMyManualDeposits(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/manual-deposits');
+  }
+
   // ========== PARRAINAGE ==========
 
   // Récupérer les informations de mon équipe de parrainage
