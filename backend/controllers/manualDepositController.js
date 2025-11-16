@@ -30,7 +30,14 @@ export const createManualDeposit = async (req, res) => {
 export const getUserManualDeposits = async (req, res) => {
   try {
     const userId = req.user.id;
-    const [rows] = await pool.query('SELECT * FROM manual_deposits WHERE user_id=? ORDER BY created_at DESC', [userId]);
+    const [rows] = await pool.query(
+      `SELECT d.*, m.bank_name
+       FROM manual_deposits d
+       LEFT JOIN payment_methods m ON d.payment_method_id = m.id
+       WHERE d.user_id = ?
+       ORDER BY d.created_at DESC`,
+      [userId]
+    );
     res.json({ success: true, data: rows });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erreur historique dépôts', error: error.message });
