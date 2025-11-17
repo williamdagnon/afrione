@@ -9,6 +9,8 @@ interface ApiResponse<T = any> {
   message?: string;
   data?: T;
   error?: string;
+  total?: number;
+  count?: number;
 }
 
 // Interface pour l'utilisateur
@@ -487,12 +489,13 @@ class ApiClient {
   }
 
   // Gestion des utilisateurs
-  async getAllUsers(limit?: number, offset?: number): Promise<ApiResponse<any[]>> {
+  async getAllUsers(limit?: number, offset?: number, search?: string): Promise<ApiResponse<any[]>> {
     const params = new URLSearchParams();
     if (limit) params.append('limit', limit.toString());
     if (offset) params.append('offset', offset.toString());
+    if (search) params.append('search', search);
     
-    return this.request<any[]>(`/admin/users?${params.toString()}`);
+    return this.request<any[]>(`/admin/users${params.toString() ? '?' + params.toString() : ''}`);
   }
 
   async getUserById(userId: number): Promise<ApiResponse<any>> {
