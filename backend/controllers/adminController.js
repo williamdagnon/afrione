@@ -136,9 +136,23 @@ export const getAllUsers = async (req, res) => {
 
     const [users] = await pool.query(query, params);
 
+    // Récupérer le nombre total d'utilisateurs
+    let countQuery = 'SELECT COUNT(*) as total FROM profiles';
+    const countParams = [];
+    
+    if (search) {
+      countQuery += ' WHERE phone LIKE ? OR display_name LIKE ?';
+      countParams.push(`%${search}%`, `%${search}%`);
+    }
+
+    const [countResult] = await pool.query(countQuery, countParams);
+    const total = countResult[0]?.total || 0;
+
     res.json({
       success: true,
-      data: users
+      data: users,
+      total: total,
+      count: users.length
     });
   } catch (error) {
     console.error('Erreur getAllUsers:', error);
