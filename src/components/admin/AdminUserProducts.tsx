@@ -76,32 +76,44 @@ const AdminUserProducts: React.FC<Props> = ({ onNavigate }) => {
   const handleStop = async (id: number) => {
     if (!window.confirm('Confirmer l\'arrêt du produit pour cet utilisateur ? (Pas de remboursement par défaut)')) return;
     try {
+      console.log('🛑 Arrêt du produit ID:', id);
       const res = await api.adminStopUserProduct(id);
+      console.log('🛑 Réponse:', res);
+      
       if (res.success) {
         toast.success('Produit arrêté');
         await load();
       } else {
-        toast.error(res.message || 'Échec');
+        const errorMsg = res.message || res.error || 'Échec de l\'arrêt';
+        console.error('❌ Erreur API:', errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err) {
-      console.error(err);
-      toast.error('Erreur lors de l\'opération');
+      const errorMsg = err instanceof Error ? err.message : 'Erreur lors de l\'opération';
+      console.error('❌ Erreur:', errorMsg);
+      toast.error(errorMsg);
     }
   };
 
   const handleReactivate = async (id: number) => {
     if (!window.confirm('Confirmer la réactivation du produit pour cet utilisateur ?')) return;
     try {
+      console.log('♻️ Réactivation du produit ID:', id);
       const res = await api.adminReactivateUserProduct(id);
+      console.log('♻️ Réponse:', res);
+      
       if (res.success) {
         toast.success('Produit réactivé');
         await load();
       } else {
-        toast.error(res.message || 'Échec');
+        const errorMsg = res.message || res.error || 'Échec de la réactivation';
+        console.error('❌ Erreur API:', errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err) {
-      console.error(err);
-      toast.error('Erreur lors de l\'opération');
+      const errorMsg = err instanceof Error ? err.message : 'Erreur lors de l\'opération';
+      console.error('❌ Erreur:', errorMsg);
+      toast.error(errorMsg);
     }
   };
 
