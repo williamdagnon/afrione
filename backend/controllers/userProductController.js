@@ -139,9 +139,13 @@ export const adminCancelUserProduct = async (req, res) => {
     `, [id]);
 
     // Si lié à un purchase, marquer l'achat comme cancelled aussi (non destructif)
-    if (up.purchase_id) {
-      await connection.query(`UPDATE purchases SET status = 'cancelled' WHERE id = ?`, [up.purchase_id]);
-    }
+    // Ne pas modifier le statut dans la table `purchases` par défaut.
+    // La colonne `purchases.status` est un ENUM limité (pending,completed,failed,refunded)
+    // et 'cancelled'/'active' ne sont pas des valeurs valides — cela provoquait
+    // l'avertissement WARN_DATA_TRUNCATED en production.
+    // Si vous voulez implémenter un remboursement ou changer le statut d'achat,
+    // faites-le via un workflow dédié (endpoint de remboursement) qui mettra à
+    // jour `purchases.status` vers une valeur supportée (par ex. 'refunded').
 
     // Logger l'action admin
     await connection.query(`
@@ -192,9 +196,10 @@ export const adminReactivateUserProduct = async (req, res) => {
     await connection.query(`UPDATE user_products SET status = 'active', end_date = NULL, updated_at = NOW() WHERE id = ?`, [id]);
 
     // If linked purchase exists, set it back to 'completed' or 'active' depending on business rules; choose 'active'
-    if (up.purchase_id) {
-      await connection.query(`UPDATE purchases SET status = 'active' WHERE id = ?`, [up.purchase_id]);
-    }
+    // Ne pas modifier `purchases.status` lors de la réactivation par défaut.
+    // Restaurer le statut d'achat doit se faire via un processus métier
+    // explicite (par ex. remboursement annulé) et en utilisant une valeur
+    // valide pour l'ENUM (ex: 'completed').
 
     // Log admin action
     await connection.query(`
