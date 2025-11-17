@@ -104,3 +104,187 @@ export const getUserProductsStats = async (req, res) => {
   }
 };
 
+/**
+ * Admin: Stop / cancel a user's active product (investment)
+ * @route   PUT /api/admin/user-products/:id/stop
+ * @access  Admin
+ */
+export const adminCancelUserProduct = async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const adminId = req.user.id;
+    const { id } = req.params; // user_products.id
+
+    // Vérifier que le produit utilisateur existe et est actif
+    const [rows] = await connection.query(`SELECT * FROM user_products WHERE id = ? FOR UPDATE`, [id]);
+    if (!rows || rows.length === 0) {
+      await connection.rollback();
+      connection.release();
+      return res.status(404).json({ success: false, message: 'Produit utilisateur non trouvé' });
+    }
+
+    const up = rows[0];
+    if (up.status !== 'active') {
+      await connection.rollback();
+      connection.release();
+      return res.status(400).json({ success: false, message: 'Le produit n\'est pas actif ou ne peut pas être arrêté' });
+    }
+
+    // Mettre à jour le statut en cancelled, enregistrer la date de fin
+    await connection.query(`
+      UPDATE user_products SET status = 'cancelled', end_date = NOW(), updated_at = NOW()
+      WHERE id = ?
+    `, [id]);
+
+    // Si lié à un purchase, marquer l'achat comme cancelled aussi (non destructif)
+    if (up.purchase_id) {
+      await connection.query(`UPDATE purchases SET status = 'cancelled' WHERE id = ?`, [up.purchase_id]);
+    }
+
+    // Logger l'action admin
+    await connection.query(`
+      INSERT INTO admin_logs (admin_id, action, target_type, target_id, details)
+      VALUES (?, 'cancel_user_product', 'user_product', ?, ?)
+    `, [adminId, id, JSON.stringify({ user_product_id: id, purchase_id: up.purchase_id || null })]);
+
+    await connection.commit();
+
+    res.json({ success: true, message: 'Produit utilisateur arrêté avec succès', data: { id } });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Erreur adminCancelUserProduct:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors de l\'arrêt du produit utilisateur', error: error.message });
+  } finally {
+    connection.release();
+  }
+};
+
+/**
+ * Admin: Reactivate a cancelled user product
+ * @route   PUT /api/admin/user-products/:id/reactivate
+ * @access  Admin
+ */
+export const adminReactivateUserProduct = async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const adminId = req.user.id;
+    const { id } = req.params; // user_products.id
+
+    const [rows] = await connection.query(`SELECT * FROM user_products WHERE id = ? FOR UPDATE`, [id]);
+    if (!rows || rows.length === 0) {
+      await connection.rollback();
+      connection.release();
+      return res.status(404).json({ success: false, message: 'Produit utilisateur non trouvé' });
+    }
+
+    const up = rows[0];
+    if (up.status !== 'cancelled') {
+      await connection.rollback();
+      connection.release();
+      return res.status(400).json({ success: false, message: 'Le produit n\'est pas en état annulé' });
+    }
+
+    // Reactivate: set status to active and clear end_date
+    await connection.query(`UPDATE user_products SET status = 'active', end_date = NULL, updated_at = NOW() WHERE id = ?`, [id]);
+
+    // If linked purchase exists, set it back to 'completed' or 'active' depending on business rules; choose 'active'
+    if (up.purchase_id) {
+      await connection.query(`UPDATE purchases SET status = 'active' WHERE id = ?`, [up.purchase_id]);
+    }
+
+    // Log admin action
+    await connection.query(`
+      INSERT INTO admin_logs (admin_id, action, target_type, target_id, details)
+      VALUES (?, 'reactivate_user_product', 'user_product', ?, ?)
+    `, [adminId, id, JSON.stringify({ user_product_id: id, purchase_id: up.purchase_id || null })]);
+
+    await connection.commit();
+
+    res.json({ success: true, message: 'Produit utilisateur réactivé', data: { id } });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Erreur adminReactivateUserProduct:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors de la réactivation du produit utilisateur', error: error.message });
+  } finally {
+    connection.release();
+  }
+};
+
+/**
+ * Admin: list user_products with optional filters
+ * @route GET /api/admin/user-products
+ * @access Admin
+ */
+export const adminListUserProducts = async (req, res) => {
+  try {
+    const { status, limit = 50, offset = 0, user_id, product_id } = req.query;
+    
+    console.log('🔍 adminListUserProducts - Params reçus:', { status, limit, offset, user_id, product_id });
+
+    let query = `
+      SELECT up.id, up.user_id, up.product_id, up.purchase_id, up.purchase_price, up.daily_revenue, up.total_revenue,
+        up.earned_so_far, up.days_elapsed, up.start_date, up.end_date, up.status, up.created_at,
+        p.name as product_name, pr.display_name as user_display_name, pr.phone as user_phone
+      FROM user_products up
+      INNER JOIN products p ON up.product_id = p.id
+      INNER JOIN profiles pr ON up.user_id = pr.id
+    `;
+
+    const params = [];
+    const filters = [];
+    
+    if (status) {
+      filters.push('up.status = ?');
+      params.push(status);
+    }
+    
+    if (user_id) {
+      // Recherche par ID numérique OU par téléphone
+      const isNumeric = /^\d+$/.test(user_id);
+      if (isNumeric) {
+        filters.push('up.user_id = ?');
+        params.push(parseInt(user_id));
+      } else {
+        // Supposé être un téléphone
+        filters.push('pr.phone LIKE ?');
+        params.push(`%${user_id}%`);
+      }
+    }
+
+    if (product_id) {
+      // Recherche par ID produit OU par nom
+      const isNumeric = /^\d+$/.test(product_id);
+      if (isNumeric) {
+        filters.push('up.product_id = ?');
+        params.push(parseInt(product_id));
+      } else {
+        // Supposé être un nom de produit
+        filters.push('p.name LIKE ?');
+        params.push(`%${product_id}%`);
+      }
+    }
+    
+    if (filters.length) {
+      query += ' WHERE ' + filters.join(' AND ');
+    }
+
+    query += ' ORDER BY up.created_at DESC LIMIT ? OFFSET ?';
+    params.push(parseInt(limit), parseInt(offset));
+    
+    console.log('🔍 SQL Query:', query);
+    console.log('🔍 Query Params:', params);
+
+    const [rows] = await pool.query(query, params);
+    console.log('🔍 Résultats trouvés:', rows.length);
+    
+    res.json({ success: true, data: rows, count: rows.length });
+  } catch (error) {
+    console.error('Erreur adminListUserProducts:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors de la récupération des produits utilisateurs', error: error.message });
+  }
+};
+
