@@ -119,30 +119,36 @@ export const getAllUsers = async (req, res) => {
 
     let query = `
       SELECT 
-        id, phone, display_name, email, balance, total_earnings,
-        total_referrals, referral_code, role, is_active, created_at
-      FROM profiles
+        p.id, p.phone, p.display_name, p.email, p.balance, p.total_earnings,
+        p.total_referrals, p.referral_code, p.role, p.is_active, p.created_at,
+        (SELECT COUNT(*) FROM purchases WHERE user_id = p.id AND status = 'active') as active_investments,
+        (SELECT COUNT(*) FROM purchases WHERE user_id = p.id AND status = 'completed') as completed_investments,
+        (SELECT COUNT(*) FROM manual_deposits WHERE user_id = p.id AND status = 'approved') as total_deposits_approved,
+        (SELECT COUNT(*) FROM withdrawal_requests WHERE user_id = p.id AND status = 'completed') as total_withdrawals_approved,
+        (SELECT COALESCE(SUM(commission_amount), 0) FROM team_commissions WHERE referrer_id = p.id) as commission_total,
+        (SELECT COUNT(*) FROM referrals WHERE referrer_id = p.id) as filleuls_count
+      FROM profiles p
     `;
 
     const params = [];
 
     if (search) {
-      query += ' WHERE phone LIKE ? OR display_name LIKE ?';
-      params.push(`%${search}%`, `%${search}%`);
+      query += ' WHERE p.phone LIKE ? OR p.display_name LIKE ? OR p.email LIKE ?';
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    query += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
 
     const [users] = await pool.query(query, params);
 
     // Récupérer le nombre total d'utilisateurs
-    let countQuery = 'SELECT COUNT(*) as total FROM profiles';
+    let countQuery = 'SELECT COUNT(*) as total FROM profiles p';
     const countParams = [];
     
     if (search) {
-      countQuery += ' WHERE phone LIKE ? OR display_name LIKE ?';
-      countParams.push(`%${search}%`, `%${search}%`);
+      countQuery += ' WHERE p.phone LIKE ? OR p.display_name LIKE ? OR p.email LIKE ?';
+      countParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     const [countResult] = await pool.query(countQuery, countParams);
@@ -183,27 +189,66 @@ export const getUserById = async (req, res) => {
       });
     }
 
-    // Statistiques supplémentaires
+    // Statistiques supplémentaires détaillées - Requête simplifiée
     const [stats] = await pool.query(`
       SELECT 
-        (SELECT COUNT(*) FROM purchases WHERE user_id = ?) as total_purchases,
-        (SELECT COUNT(*) FROM user_products WHERE user_id = ? AND status = 'active') as active_products,
-        (SELECT COUNT(*) FROM referrals WHERE referrer_id = ?) as total_referrals,
-        (SELECT SUM(commission_amount) FROM team_commissions WHERE referrer_id = ?) as total_commissions
-    `, [id, id, id, id]);
+        (SELECT COUNT(*) FROM purchases WHERE user_id = ? AND status = 'active') as active_purchases,
+        (SELECT COUNT(*) FROM purchases WHERE user_id = ? AND status = 'completed') as completed_purchases,
+        (SELECT COUNT(*) FROM manual_deposits WHERE user_id = ? AND status = 'approved') as approved_deposits,
+        (SELECT COUNT(*) FROM manual_deposits WHERE user_id = ?) as total_manual_deposits,
+        (SELECT COUNT(*) FROM withdrawal_requests WHERE user_id = ? AND status = 'completed') as approved_withdrawals,
+        (SELECT COUNT(*) FROM withdrawal_requests WHERE user_id = ?) as total_withdrawal_requests,
+        (SELECT COALESCE(COUNT(*), 0) FROM referrals WHERE referrer_id = ?) as total_referrals,
+        (SELECT COALESCE(SUM(amount), 0) FROM manual_deposits WHERE user_id = ? AND status = 'approved') as total_deposits_amount,
+        (SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE user_id = ? AND status = 'completed') as total_withdrawals_amount,
+        (SELECT COALESCE(SUM(commission_amount), 0) FROM team_commissions WHERE referrer_id = ?) as commission_total
+    `, [id, id, id, id, id, id, id, id, id, id]);
+
+    // Détails des dépôts - simplifié
+    const [deposits] = await pool.query(`
+      SELECT id, amount, status, created_at
+      FROM manual_deposits
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+      LIMIT 10
+    `, [id]);
+
+    // Détails des retraits - simplifié
+    const [withdrawals] = await pool.query(`
+      SELECT id, amount, status, created_at
+      FROM withdrawal_requests
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+      LIMIT 10
+    `, [id]);
+
+    // Détails des produits utilisateur (investissements actifs récents)
+    const [userProducts] = await pool.query(`
+      SELECT up.id, up.purchase_id, up.purchase_price, up.daily_revenue, up.total_revenue, up.earned_so_far, up.days_elapsed, up.start_date, up.end_date, up.status,
+        p.id as product_id, p.name as product_name, p.image as product_image
+      FROM user_products up
+      INNER JOIN products p ON up.product_id = p.id
+      WHERE up.user_id = ?
+      ORDER BY up.created_at DESC
+      LIMIT 20
+    `, [id]);
 
     res.json({
       success: true,
       data: {
         ...user[0],
-        stats: stats[0]
+        stats: stats[0],
+        deposits: deposits,
+        withdrawals: withdrawals,
+        user_products: userProducts
       }
     });
   } catch (error) {
     console.error('Erreur getUserById:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de la récupération de l\'utilisateur'
+      message: 'Erreur lors de la récupération des détails utilisateur',
+      error: error.message
     });
   }
 };
