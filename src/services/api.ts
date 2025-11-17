@@ -671,9 +671,17 @@ class ApiClient {
     });
   }
 
-  // PATCH AI: Admin gestion dépôts manuels
-  async getManualDepositsAdmin(): Promise<ApiResponse<any[]>> {
-    return this.request<any[]>('/manual-deposits/admin');
+  // Admin gestion dépôts manuels (support pagination & filtres)
+  async getManualDepositsAdmin(options?: { page?: number; limit?: number; status?: string; q?: string }): Promise<ApiResponse<{data:any[]; total:number; page:number; limit:number}>> {
+    const params: string[] = [];
+    if (options) {
+      if (options.page) params.push(`page=${options.page}`);
+      if (options.limit) params.push(`limit=${options.limit}`);
+      if (options.status) params.push(`status=${encodeURIComponent(options.status)}`);
+      if (options.q) params.push(`q=${encodeURIComponent(options.q)}`);
+    }
+    const qs = params.length ? `?${params.join('&')}` : '';
+    return this.request<any>(`/manual-deposits/admin${qs}`);
   }
   async approveManualDeposit(id:number): Promise<ApiResponse<any>> {
     return this.request<any>(`/manual-deposits/admin/${id}/approve`,{method:'PUT'});
