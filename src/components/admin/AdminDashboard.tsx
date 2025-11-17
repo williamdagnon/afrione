@@ -192,6 +192,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
             <span className="text-gray-400">&gt;</span>
           </motion.button>
 
+          {/* User Products Management (admin) */}
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => onNavigate('admin-user-products' as ScreenType)}
+            className="w-full bg-white rounded-lg p-4 shadow flex items-center justify-between hover:bg-yellow-50 transition-colors"
+          >
+            <div className="flex items-center">
+              <TrendingUp className="w-5 h-5 text-indigo-500 mr-3" />
+              <div className="text-left">
+                <p className="font-semibold text-gray-800">Gérer les produits utilisateurs</p>
+                <p className="text-sm text-gray-500">Arrêter / Réactiver</p>
+              </div>
+            </div>
+            <span className="text-gray-400">&gt;</span>
+          </motion.button>
+
           {/* PATCH AI - Dépôts manuels */}
           <motion.button
             whileTap={{ scale:0.98 }}
