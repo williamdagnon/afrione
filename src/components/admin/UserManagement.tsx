@@ -30,17 +30,27 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
   const [showAdjustBalance, setShowAdjustBalance] = useState(false);
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceOperation, setBalanceOperation] = useState<'add' | 'subtract'>('add');
+  
+  // État de pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const itemsPerPage = 20; // 20 utilisateurs par page
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [currentPage, searchTerm]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.getAllUsers(100, 0);
+      const offset = (currentPage - 1) * itemsPerPage;
+      const response = await api.getAllUsers(itemsPerPage, offset, searchTerm);
       if (response.success && response.data) {
         setUsers(response.data);
+        // Si la réponse contient le total, on l'utilise
+        if (response.total) {
+          setTotalUsers(response.total);
+        }
       }
     } catch (error) {
       console.error('Erreur chargement utilisateurs:', error);
@@ -48,6 +58,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Réinitialiser à la première page
   };
 
   const handleToggleStatus = async (user: User) => {
@@ -86,12 +101,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
     <div className="min-h-screen bg-gray-100 font-serif">
       {/* Header */}
@@ -102,7 +111,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
           </button>
           <div>
             <h1 className="text-xl font-bold">Gestion des utilisateurs</h1>
-            <p className="text-yellow-100 text-sm">{users.length} utilisateur(s)</p>
+            <p className="text-yellow-100 text-sm">
+              {users.length} utilisateur(s) sur cette page
+              {totalUsers > 0 && <span> / {totalUsers} total</span>}
+            </p>
           </div>
         </div>
 
@@ -113,22 +125,22 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
             type="text"
             placeholder="Rechercher par téléphone, nom, email..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-lg text-gray-800"
           />
         </div>
       </div>
 
       {/* Users List */}
-      <div className="p-4 space-y-3 pb-20">
+      <div className="p-4 space-y-3 pb-32">
         {loading ? (
           <div className="text-center py-8 text-gray-500">Chargement...</div>
-        ) : filteredUsers.length === 0 ? (
+        ) : users.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             Aucun utilisateur trouvé
           </div>
         ) : (
-          filteredUsers.map((user) => (
+          users.map((user) => (
             <motion.div 
               key={user.id}
               initial={{ opacity: 0, y: 20 }}
@@ -224,7 +236,35 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
         )}
       </div>
 
-      {/* Adjust Balance Modal */}
+      {/* Pagination */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Page <span className="font-semibold">{currentPage}</span> - {users.length} utilisateur(s) affiché(s)
+            {totalUsers > 0 && <span className="ml-2 text-gray-500">/ {totalUsers} total</span>}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
+            >
+              ← Précédent
+            </button>
+            <button
+              onClick={() => {
+                if (users.length === itemsPerPage) {
+                  setCurrentPage(p => p + 1);
+                }
+              }}
+              disabled={users.length < itemsPerPage}
+              className="px-4 py-2 rounded-lg bg-yellow-500 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-yellow-600"
+            >
+              Suivant →
+            </button>
+          </div>
+        </div>
+      </div>
       {showAdjustBalance && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <motion.div 
