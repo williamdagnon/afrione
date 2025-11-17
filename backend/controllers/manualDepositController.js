@@ -46,14 +46,38 @@ export const getUserManualDeposits = async (req, res) => {
 
 export const listAllDeposits = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT d.*, p.display_name AS user_name, p.phone, m.bank_name, m.account_holder, m.account_number
+    // Support query params: status, page, limit, q (search)
+    const { status, page = 1, limit = 20, q } = req.query;
+    const pageNum = parseInt(page, 10) || 1;
+    const lim = parseInt(limit, 10) || 20;
+    const offset = (pageNum - 1) * lim;
+
+    let whereClauses = [];
+    const params = [];
+    if (status) {
+      whereClauses.push('d.status = ?');
+      params.push(status);
+    }
+    if (q) {
+      whereClauses.push('(p.display_name LIKE ? OR p.phone LIKE ? OR d.deposit_number LIKE ?)');
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+    }
+    const where = whereClauses.length ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    const countSql = `SELECT COUNT(*) AS total FROM manual_deposits d JOIN profiles p ON d.user_id=p.id JOIN payment_methods m ON d.payment_method_id=m.id ${where}`;
+    const [countRows] = await pool.query(countSql, params);
+    const total = countRows[0]?.total || 0;
+
+    const sql = `SELECT d.*, p.display_name AS user_name, p.phone, m.bank_name, m.account_holder, m.account_number
        FROM manual_deposits d
-       JOIN profiles p ON d.user_id=p.id
-       JOIN payment_methods m ON d.payment_method_id=m.id
-       ORDER BY d.created_at DESC`
-    );
-    res.json({ success: true, data: rows });
+       JOIN profiles p ON d.user_id = p.id
+       JOIN payment_methods m ON d.payment_method_id = m.id
+       ${where}
+       ORDER BY d.created_at DESC
+       LIMIT ? OFFSET ?`;
+    const finalParams = params.concat([lim, offset]);
+    const [rows] = await pool.query(sql, finalParams);
+    res.json({ success: true, data: rows, total, page: pageNum, limit: lim });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erreur admin liste dépôts', error: error.message });
   }
