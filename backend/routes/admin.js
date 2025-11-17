@@ -10,6 +10,7 @@ import {
   updateSystemSetting,
   getAdminLogs
 } from '../controllers/adminController.js';
+import { adminCancelUserProduct, adminReactivateUserProduct, adminListUserProducts } from '../controllers/userProductController.js';
 import {
   getAllWithdrawals,
   approveWithdrawal,
@@ -56,6 +57,15 @@ router.put('/settings', updateSystemSetting);
 
 // Logs
 router.get('/logs', getAdminLogs);
+
+// Admin: arrêter un produit utilisateur
+router.put('/user-products/:id/stop', adminCancelUserProduct);
+
+// Admin: réactiver un produit utilisateur
+router.put('/user-products/:id/reactivate', adminReactivateUserProduct);
+
+// Admin: lister les produits utilisateurs
+router.get('/user-products', adminListUserProducts);
 
 export default router;
 
