@@ -176,13 +176,26 @@ class ApiClient {
 
       const data = await response.json();
 
+      // ✅ Retourner la réponse JSON même si le statut HTTP n'est pas OK
+      // Cela permet au frontend de traiter les erreurs métier correctement
       if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la requête');
+        console.warn(`⚠️ Erreur HTTP ${response.status}:`, data);
+        // Si la réponse JSON contient déjà un format d'erreur, la retourner
+        if (data.success === false || data.message) {
+          return data;
+        }
+        // Sinon, construire une réponse d'erreur
+        return {
+          success: false,
+          message: data.message || `Erreur HTTP ${response.status}`,
+          error: data.error,
+          data: undefined
+        };
       }
 
       return data;
     } catch (error) {
-      console.error('Erreur API:', error);
+      console.error('Erreur API (network):', error);
       throw error;
     }
   }
