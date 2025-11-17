@@ -4,7 +4,7 @@ import type { ReferralTeam, ReferralStats, ReferralCodeValidation } from '../typ
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 // Interface pour la réponse de l'API
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   message?: string;
   data?: T;
@@ -158,21 +158,21 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
     
-    const headers: HeadersInit = {
+    const headersObj: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...((options.headers as Record<string, string>) || {}),
     };
 
     // Ajouter le token d'authentification si disponible
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      headersObj['Authorization'] = `Bearer ${this.token}`;
     }
 
     try {
       const response = await fetch(url, {
         ...options,
-        headers,
-      });
+        headers: headersObj,
+      } as RequestInit);
 
       const data = await response.json();
 
@@ -563,6 +563,29 @@ class ApiClient {
     return this.request<any>(`/products/${productId}`, {
       method: 'DELETE',
     });
+  }
+
+  // Admin: arrêter un produit utilisateur (investment)
+  async adminStopUserProduct(userProductId: number): Promise<ApiResponse<any>> {
+    return this.request<any>(`/admin/user-products/${userProductId}/stop`, {
+      method: 'PUT'
+    });
+  }
+
+  async adminReactivateUserProduct(userProductId: number): Promise<ApiResponse<any>> {
+    return this.request<any>(`/admin/user-products/${userProductId}/reactivate`, {
+      method: 'PUT'
+    });
+  }
+
+  async getAdminUserProducts(params?: { status?: string; user_id?: string | number; product_id?: string | number; limit?: number; offset?: number }): Promise<ApiResponse<any[]>> {
+    const q = new URLSearchParams();
+    if (params?.status) q.append('status', params.status);
+    if (params?.user_id) q.append('user_id', String(params.user_id));
+    if (params?.product_id) q.append('product_id', String(params.product_id));
+    if (params?.limit) q.append('limit', String(params.limit));
+    if (params?.offset) q.append('offset', String(params.offset));
+    return this.request<any[]>(`/admin/user-products${q.toString() ? '?' + q.toString() : ''}`);
   }
 
   // Statistiques admin
