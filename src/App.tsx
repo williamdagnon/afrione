@@ -27,9 +27,10 @@ import AdminSettings from './components/admin/AdminSettings';
 import ManualDepositManagement from './components/admin/ManualDepositManagement';
 import BankAccountsManagement from './components/admin/BankAccountsManagement';
 import PaymentMethodsManagement from './components/admin/PaymentMethodsManagement';
+import AdminUserProducts from './components/admin/AdminUserProducts';
 import api, { User } from './services/api';
 
-export type ScreenType = 'login' | 'register' | 'home' | 'product' | 'team' | 'profile' | 'about' | 'rules' | 'balance-details' | 'customer-service' | 'bank-accounts' | 'link-bank-card' | 'recharge' | 'withdraw' | 'check-in' | 'admin-dashboard' | 'admin-withdrawals' | 'admin-users' | 'admin-products' | 'admin-settings' | 'admin-manual-deposits' | 'admin-bank-accounts' | 'admin-payment-methods' | 'task-center';
+export type ScreenType = 'login' | 'register' | 'home' | 'product' | 'team' | 'profile' | 'about' | 'rules' | 'balance-details' | 'customer-service' | 'bank-accounts' | 'link-bank-card' | 'recharge' | 'withdraw' | 'check-in' | 'admin-dashboard' | 'admin-withdrawals' | 'admin-users' | 'admin-products' | 'admin-settings' | 'admin-manual-deposits' | 'admin-bank-accounts' | 'admin-payment-methods' | 'admin-user-products' | 'task-center';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('register');
@@ -442,6 +443,10 @@ function App() {
 
       {currentScreen === 'admin-products' && (
         <ProductManagement onNavigate={handleNavigate} />
+      )}
+
+      {currentScreen === 'admin-user-products' && (
+        <AdminUserProducts onNavigate={handleNavigate} />
       )}
 
       {currentScreen === 'admin-settings' && (
