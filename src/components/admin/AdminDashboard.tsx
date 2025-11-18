@@ -216,7 +216,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
               <div className="flex items-center">
                 <DollarSign className="w-5 h-5 text-yellow-500 mr-3" />
                 <div className="text-left">
-                  <p className="font-semibold text-gray-800">Dépôts manuels</p>
+                  {/* <p className="font-semibold text-gray-800">Dépôts manuels</p> */}
                   <p className="text-sm text-gray-500">À approuver</p>
                 </div>
               </div>
