@@ -170,12 +170,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate, onLogout, use
         {/* Admin Panel Button (only for admins) */}
         {currentUser?.role === 'admin' && (
           <div className="mt-4">
-            <button
+            {/* <button
               onClick={() => onNavigate('admin-dashboard' as ScreenType)}
               className="w-full bg-purple-600 text-white py-3 rounded-full font-medium text-sm hover:bg-purple-700 transition-colors"
             >
               🔐 Panel Administrateur
-            </button>
+            </button> */}
           </div>
         )}
 
