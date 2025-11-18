@@ -209,19 +209,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
           </motion.button>
 
           {/* PATCH AI - Dépôts manuels */}
-          <motion.button
+          {/* <motion.button
             whileTap={{ scale:0.98 }}
             onClick={()=>onNavigate('admin-manual-deposits' as ScreenType)}
             className="w-full bg-white rounded-lg p-4 shadow flex items-center justify-between hover:bg-yellow-50 transition-colors">
               <div className="flex items-center">
                 <DollarSign className="w-5 h-5 text-yellow-500 mr-3" />
                 <div className="text-left">
-                  {/* <p className="font-semibold text-gray-800">Dépôts manuels</p> */}
+                   <p className="font-semibold text-gray-800">Dépôts manuels</p> 
                   <p className="text-sm text-gray-500">À approuver</p>
                 </div>
               </div>
               <span className="text-gray-400">&gt;</span>
-          </motion.button>
+          </motion.button> */}
 
           {/* Comptes bancaires utilisateurs */}
           <motion.button
